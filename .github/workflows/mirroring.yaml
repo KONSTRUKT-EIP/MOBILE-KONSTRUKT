@@ -12,7 +12,7 @@ jobs:
       - name: Mirroring
         run: |
           curl -X POST \
-          -H "Authorization: token ${{ secrets.MONOREPO_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.GIT_SSH_PRIVATE_KEY }}" \
+          -H "Accept: application/vnd.github+json" \
           https://api.github.com/repos/EpitechPGE3-2025/G-EIP-600-PAR-6-1-eip-23/dispatches \
           -d '{"event_type":"update-frontMobile"}'
