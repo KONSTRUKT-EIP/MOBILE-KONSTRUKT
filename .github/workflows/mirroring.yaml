@@ -1,21 +1,18 @@
-name: mirror
+name: Mirroring
 
 on:
   push:
     branches:
-      - "main"
-
-env:
-  MIRROR_URL: git@github.com:EpitechPGE3-2025/G-EIP-600-PAR-6-1-eip-23.git
+      - main
 
 jobs:
-  push_to_mirror:
+  push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url: ${{ env.MIRROR_URL }}
-          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+      - name: Mirroring
+        run: |
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.MONOREPO_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/EpitechPGE3-2025/G-EIP-600-PAR-6-1-eip-23/dispatches \
+          -d '{"event_type":"update-frontMobile"}'
