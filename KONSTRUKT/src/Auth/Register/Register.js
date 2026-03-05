@@ -18,6 +18,10 @@ const RegisterPage = ({ navigation }) => {
       setError("Format d'email invalide.");
       return;
     }
+    if (telephone.length < 10) {
+    setError("Le numéro de téléphone doit contenir au moins 10 chiffres.");
+    return;
+    }
     setError('');
     console.log('Inscription...');
   };
@@ -66,12 +70,16 @@ const RegisterPage = ({ navigation }) => {
               style={styles.input}
               placeholder="Téléphone"
               placeholderTextColor="#999"
-              value={telephone}
-              onChangeText={(text) => { setTelephone(text); setError(''); }}
-              keyboardType="phone-pad"
-              accessible={true}
-              accessibilityLabel="Champ Téléphone"
-            />
+              value={telephone} 
+              onChangeText={(text) => {
+              const OnlyNumbers = text.replace(/[^0-9 ]/g, '');
+              setTelephone(OnlyNumbers);
+              setError('');
+            }}
+            keyboardType="phone-pad"
+            accessible={true}
+            accessibilityLabel="Champ Téléphone"
+          />
 
             <TextInput
               style={styles.input}
@@ -157,8 +165,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
   },
-
-  // --- SECTION 4 : BOUTONS ---
   button: {
     backgroundColor: '#cb6516ff',
     padding: 15,
@@ -175,8 +181,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-
-  // --- SECTION 5 : TEXTES & NAVIGATION ---
   errorText: {
     color: '#d32f2f',
     fontSize: 13,
