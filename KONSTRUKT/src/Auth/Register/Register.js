@@ -24,6 +24,9 @@ const RegisterPage = ({ navigation }) => {
     }
     setError('');
     console.log('Inscription...');
+    setError('');
+    console.log('Inscription réussie !');
+    navigation.navigate('Success');
   };
 
   return (
