@@ -3,7 +3,8 @@ import {
   StyleSheet, View, Text, TextInput, TouchableOpacity, 
   Image, KeyboardAvoidingView, Platform, ActivityIndicator 
 } from 'react-native';
-import authService from '../../Services/authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import authService from '../../../Services/authService';
 
 const LoginPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -23,7 +24,8 @@ const LoginPage = ({ navigation }) => {
     try {
       const response = await authService.login(email, password);
       console.log('Succès !', response);
-      navigation.navigate('HomePage'); 
+      //navigation.navigate('HomePage');
+      navigation.navigate('Main');
     } catch (err) {
       const backendMessage = err.response?.data?.message;
       const displayError = Array.isArray(backendMessage) ? backendMessage[0] : backendMessage;
@@ -40,7 +42,7 @@ const LoginPage = ({ navigation }) => {
     >
       <View style={styles.inner}>
         <Image 
-          source={require('../assets/Konstrukt_logo-removebg-preview.png')}
+          source={require('../../../Assets/Konstrukt_logo-removebg-preview.png')}
           style={styles.logo}
           resizeMode="contain"
         />

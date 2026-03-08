@@ -3,7 +3,7 @@ import {
   StyleSheet, View, Text, TextInput, TouchableOpacity, 
   Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator
 } from 'react-native';
-import authService from '../../Services/authService';
+import authService from '../../../Services/authService';
 
 const RegisterPage = ({ navigation }) => {
   const [lastName, setLastName] = useState('');
@@ -59,7 +59,7 @@ const RegisterPage = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.inner}>
           <Image
-            source={require('../assets/Konstrukt_logo-removebg-preview.png')}
+            source={require('../../../Assets/Konstrukt_logo-removebg-preview.png')}
             style={styles.logo}
             resizeMode="contain"
           />
