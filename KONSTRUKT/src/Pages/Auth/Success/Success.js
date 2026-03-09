@@ -7,7 +7,7 @@ const SuccessPage = ({ navigation }) => {
       <View style={styles.card}>
         <View style={styles.imageContainer}>
           <Image 
-            source={require('../assets/success1.png')} 
+            source={require('../../../Assets/success1.png')} 
             style={styles.image}
             resizeMode="contain"
           />
