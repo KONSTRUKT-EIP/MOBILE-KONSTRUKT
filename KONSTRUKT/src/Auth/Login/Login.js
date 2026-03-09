@@ -1,23 +1,36 @@
 import React, { useState } from 'react';
 import { 
   StyleSheet, View, Text, TextInput, TouchableOpacity, 
-  Image, KeyboardAvoidingView, Platform 
+  Image, KeyboardAvoidingView, Platform, ActivityIndicator 
 } from 'react-native';
+import authService from '../../Services/authService';
 
 const LoginPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const isFormEmpty = email.trim() === '' || password.trim() === '';
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email.includes('@')) {
       setError("L'adresse email n'est pas valide.");
       return;
     }
     setError('');
-    console.log('Connexion...');
+    setLoading(true);
+    try {
+      const response = await authService.login(email, password);
+      console.log('Succès !', response);
+      navigation.navigate('HomePage'); 
+    } catch (err) {
+      const backendMessage = err.response?.data?.message;
+      const displayError = Array.isArray(backendMessage) ? backendMessage[0] : backendMessage;
+      setError(displayError || "Identifiants incorrects.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,57 +43,49 @@ const LoginPage = ({ navigation }) => {
           source={require('../assets/Konstrukt_logo-removebg-preview.png')}
           style={styles.logo}
           resizeMode="contain"
-          accessible={true}
-          accessibilityLabel="Logo Konstrukt"
         />
         
         <View style={styles.form}>
+          <Text style={styles.title}>Connectez-vous</Text>
+          <Text style={styles.inputLabel}>Adresse e-mail</Text>
           <TextInput
             style={[styles.input, error ? styles.inputError : null]}
-            placeholder="Email"
-            placeholderTextColor="#999"
+            placeholder="exemple@mail.com"
+            placeholderTextColor="#666"
             value={email}
             onChangeText={(text) => { setEmail(text); setError(''); }}
             keyboardType="email-address"
             autoCapitalize="none"
-            accessible={true}
-            accessibilityLabel="Champ Email"
           />
-
+          <Text style={styles.inputLabel}>Mot de passe</Text>
           <TextInput
             style={styles.input}
-            placeholder="Mot de passe"
-            placeholderTextColor="#999"
+            placeholder="Votre mot de passe"
+            placeholderTextColor="#666"
             value={password}
             onChangeText={(text) => { setPassword(text); setError(''); }}
             secureTextEntry
-            accessible={true}
-            accessibilityLabel="Champ Mot de passe"
           />
 
           {error ? (
-            <Text style={styles.errorText} accessibilityLiveRegion="assertive">
+            <Text style={styles.errorText}>
               {error}
             </Text>
           ) : null}
 
           <TouchableOpacity 
-            style={[styles.button, isFormEmpty && styles.buttonDisabled]}
+            style={[styles.button, (isFormEmpty || loading) && styles.buttonDisabled]}
             onPress={handleLogin}
-            disabled={isFormEmpty}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Se connecter"
-            accessibilityState={{ disabled: isFormEmpty }}
+            disabled={isFormEmpty || loading}
           >
-            <Text style={styles.buttonText}>Se connecter</Text>
+            {loading ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.buttonText}>Se connecter</Text>
+            )}
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.forgotPasswordContainer}
-            accessibilityRole="button"
-            accessibilityLabel="Réinitialiser le mot de passe"
-          >
+          <TouchableOpacity style={styles.forgotPasswordContainer}>
             <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
           </TouchableOpacity>
 
@@ -88,8 +93,6 @@ const LoginPage = ({ navigation }) => {
             <Text style={styles.noAccountText}>Pas de compte ? </Text>
             <TouchableOpacity 
               onPress={() => navigation.navigate('Register')}
-              accessibilityRole="button"
-              accessibilityLabel="S'inscrire"
               style={styles.linkTouchZone}
             >
               <Text style={styles.registerText}>S'inscrire</Text>
@@ -106,20 +109,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e9f0f0',
   },
+
   inner: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
+
   form: {
     width: '100%',
   },
   logo: {
-    width: 250,
-    height: 250,
-    marginBottom: 20,
+    width: 220,
+    height: 220,
+    marginBottom: 0,
   },
+
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+
+  inputLabel: {
+    color: '#333',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+    marginLeft: 2,
+  },
+
   input: {
     backgroundColor: '#1E1E1E',
     color: '#FFF',
@@ -129,55 +151,69 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
   },
+
   inputError: {
     borderColor: '#d32f2f',
   },
+
   button: {
     backgroundColor: '#cb6516ff',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 5,
+    marginTop: 10,
+    height: 55,
+    justifyContent: 'center',
   },
+
   buttonDisabled: {
     backgroundColor: '#a1a1a1',
     opacity: 0.5,
   },
+
   buttonText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
+
   errorText: {
     color: '#d32f2f',
     fontSize: 13,
     fontWeight: '500',
     marginBottom: 15,
+    textAlign: 'center',
   },
+
   forgotPasswordContainer: {
     marginTop: 15,
     alignItems: 'center',
   },
+
   forgotPasswordText: {
     color: '#666',
     fontSize: 14,
   },
+
   registerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 30,
   },
+
   noAccountText: {
     color: '#666',
     fontSize: 14,
   },
+
   registerText: {
     color: '#cb6516ff',
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,
   },
+  
   linkTouchZone: {
     paddingVertical: 5,
     paddingHorizontal: 2,
