@@ -24,8 +24,18 @@ const LoginPage = ({ navigation }) => {
     try {
       const response = await authService.login(email, password);
       console.log('Succès !', response);
-      //navigation.navigate('HomePage');
-      navigation.navigate('Main');
+      const token = response.access_token;
+      const firstName = response.user?.firstName || "Utilisateur";
+
+      if (token) {
+        await AsyncStorage.setItem('userToken', token);
+        await AsyncStorage.setItem('userFirstName', firstName);
+        console.log('Token et prénom sauvegardés');
+        navigation.navigate('Main');
+      } else {
+        setError("Le serveur n'a pas renvoyé de jeton d'accès.");
+      }
+
     } catch (err) {
       const backendMessage = err.response?.data?.message;
       const displayError = Array.isArray(backendMessage) ? backendMessage[0] : backendMessage;
@@ -49,6 +59,7 @@ const LoginPage = ({ navigation }) => {
         
         <View style={styles.form}>
           <Text style={styles.title}>Connectez-vous</Text>
+          
           <Text style={styles.inputLabel}>Adresse e-mail</Text>
           <TextInput
             style={[styles.input, error ? styles.inputError : null]}
@@ -59,6 +70,7 @@ const LoginPage = ({ navigation }) => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
+
           <Text style={styles.inputLabel}>Mot de passe</Text>
           <TextInput
             style={styles.input}
@@ -69,11 +81,7 @@ const LoginPage = ({ navigation }) => {
             secureTextEntry
           />
 
-          {error ? (
-            <Text style={styles.errorText}>
-              {error}
-            </Text>
-          ) : null}
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           <TouchableOpacity 
             style={[styles.button, (isFormEmpty || loading) && styles.buttonDisabled]}

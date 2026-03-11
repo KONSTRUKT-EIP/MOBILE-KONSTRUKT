@@ -1,26 +1,56 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import api from '../../API/Api'; 
 import AnalyticsGraph from '../../Components/Dashboard/AnalyticsGraph'; 
 import CreateOrderModal from '../../Components/Dashboard/CreateOrderModal';
 
 const TradeDashboard = ({ route, navigation }) => {
   const { category } = route.params || { category: "Armature" };
-
-  const [filters, setFilters] = useState([
-    { id: 1, label: 'Voiles', checked: true, color: '#818CF8' },
-    { id: 2, label: 'Planchers', checked: true, color: '#C084FC' },
-    { id: 3, label: 'Poutres', checked: true, color: '#60A5FA' },
-    { id: 4, label: 'Superstructure', checked: false, color: '#9CA3AF' },
-  ]);
-
+  const [reportData, setReportData] = useState(null);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const toggleFilter = (id) => {
-    setFilters(prevFilters => 
-      prevFilters.map(item => item.id === id ? { ...item, checked: !item.checked } : item)
-    );
+  useEffect(() => {
+    const loadTradeData = async () => {
+      try {
+        setLoading(true);
+        const [analyticsRes, ordersRes] = await Promise.all([
+          api.get('/dashboard/armature/analytics', {
+            params: {
+              startDate: '2024-01-01', 
+              endDate: '2024-12-31',   
+              categories: 'voiles,planchers' 
+            }
+          }),
+          api.get('/dashboard/armature/orders/recent')
+        ]);
+
+        setReportData(analyticsRes.data);
+        setRecentOrders(ordersRes.data.orders);
+      } catch (err) {
+        console.error("Erreur Dashboard Analytics:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTradeData();
+  }, []);
+
+  const handleCreateOrder = async (orderDto) => {
+    try {
+      await api.post('/dashboard/armature/orders', orderDto);
+      Alert.alert("Succès", "Livraison enregistrée !");
+      setModalVisible(false);
+      const updatedOrders = await api.get('/dashboard/armature/orders/recent');
+      setRecentOrders(updatedOrders.data.orders);
+    } catch (err) {
+      Alert.alert("Erreur", "Impossible de créer la commande.");
+    }
   };
+
+  if (loading) return <View style={styles.loader}><ActivityIndicator size="large" color="#cb6516" /></View>;
 
   return (
     <View style={styles.container}>
@@ -30,58 +60,90 @@ const TradeDashboard = ({ route, navigation }) => {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <MaterialCommunityIcons name="chevron-left" size={30} color="#cb6516" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Dashboard / {category}</Text>
+          <Text style={styles.headerTitle}>Analytics / {category}</Text>
+        </View>
+
+        <View style={styles.kpiRow}>
+          {reportData?.kpiCards.map((kpi, i) => (
+            <View key={i} style={styles.kpiCard}>
+              <Text style={styles.kpiLabel}>{kpi.label}</Text>
+              <Text style={styles.kpiValue}>{kpi.percentage}%</Text>
+              <Text style={styles.kpiSpent}>{kpi.spent} €</Text>
+            </View>
+          ))}
         </View>
 
         <View style={styles.whiteCard}>
-          <Text style={styles.cardTitle}>Reports</Text>
-          <AnalyticsGraph data={{voiles: [60,45,62,40,52,48,40,42,65,72], planchers: [35,48,60,38,25,20,38,42,60,68]}} labels={["10am", "", "12am", "", "2am", "", "4am", "", "6am", ""]} />
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Suivi Temporel</Text>
+            <Text style={styles.overallText}>{reportData?.overallPercentage}% Avancement</Text>
+          </View>
+          <AnalyticsGraph data={reportData?.chartData} />
         </View>
 
+        <View style={styles.budgetCard}>
+          <View style={styles.budgetItem}>
+            <Text style={styles.budgetLabel}>Budget Prévu</Text>
+            <Text style={styles.budgetValue}>{reportData?.totalBudget} €</Text>
+          </View>
+          <View style={styles.budgetDivider} />
+          <View style={styles.budgetItem}>
+            <Text style={styles.budgetLabel}>Consommé</Text>
+            <Text style={[styles.budgetValue, {color: '#cb6516'}]}>{reportData?.totalSpent} €</Text>
+          </View>
+        </View>
+    
         <View style={styles.whiteCard}>
-          <Text style={styles.cardTitle}>Filtres de vue</Text>
+          <Text style={styles.cardTitle}>Éléments Analysés</Text>
           <View style={styles.filterGrid}>
-            {filters.map(filter => (
-              <TouchableOpacity key={filter.id} style={styles.filterItem} onPress={() => toggleFilter(filter.id)}>
-                <MaterialCommunityIcons 
-                  name={filter.checked ? "checkbox-marked" : "checkbox-blank-outline"} 
-                  size={26} 
-                  color={filter.checked ? filter.color : "#999"} 
-                />
-                <Text style={[styles.filterLabel, { color: filter.checked ? '#333' : '#999' }]}>{filter.label}</Text>
-              </TouchableOpacity>
+            {reportData?.filters.map(f => (
+              <View key={f.id} style={styles.filterItem}>
+                <MaterialCommunityIcons name="check-circle" size={20} color="#818CF8" />
+                <Text style={styles.filterLabel}>{f.label}</Text>
+              </View>
             ))}
           </View>
         </View>
 
         <View style={styles.whiteCard}>
           <View style={styles.orderHeader}>
-            <Text style={styles.cardTitle}>Commande Recents</Text>
-            <TouchableOpacity style={styles.addOrderBtn} onPress={() => setModalVisible(true)}>
-              <Text style={styles.addOrderText}>+ Créer une commande</Text>
+            <Text style={styles.cardTitle}>Livraisons</Text>
+            <TouchableOpacity style={styles.addBtn} onPress={() => setModalVisible(true)}>
+              <Text style={styles.addBtnText}>+ Nouvelle</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.emptyTable}>
-            <MaterialCommunityIcons name="clipboard-text-search-outline" size={40} color="#EEE" />
-            <Text style={styles.emptyTableText}>Aucune commande récente</Text>
-          </View>
+          {recentOrders.map((order) => (
+            <View key={order.id} style={styles.orderRow}>
+              <View>
+                <Text style={styles.orderName}>{order.productName}</Text>
+                <Text style={styles.orderSub}>{order.totalOrder} unités</Text>
+              </View>
+              <Text style={styles.orderTotal}>{order.total} €</Text>
+            </View>
+          ))}
         </View>
-
       </ScrollView>
 
       <CreateOrderModal 
         visible={isModalVisible} 
         onClose={() => setModalVisible(false)} 
-        onCreate={(data) => console.log("Nouvelle commande :", data)}
+        onCreate={handleCreateOrder} 
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: '#f0f4f4',
+  },
+
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   scrollContent: {
@@ -100,25 +162,104 @@ const styles = StyleSheet.create({
   },
 
   headerTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#1E1E1E',
+  },
+
+  kpiRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+
+  kpiCard: {
+    width: '31%',
+    padding: 10,
+
+    alignItems: 'center',
+
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+
+    elevation: 2,
+  },
+
+  kpiLabel: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#666',
+  },
+
+  kpiValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#cb6516',
+  },
+
+  kpiSpent: {
+    fontSize: 9,
+    color: '#999',
   },
 
   whiteCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 15,
     padding: 15,
     marginBottom: 15,
 
+    backgroundColor: '#FFF',
+    borderRadius: 15,
+
     elevation: 2,
+  },
+
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+
+    marginBottom: 15,
   },
 
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+  },
+
+  overallText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#818CF8',
+  },
+
+  budgetCard: {
+    flexDirection: 'row',
+
+    padding: 20,
     marginBottom: 15,
+
+    backgroundColor: '#1E1E1E',
+    borderRadius: 15,
+  },
+
+  budgetItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  budgetLabel: {
+    fontSize: 11,
+    marginBottom: 5,
+    color: '#AAA',
+  },
+
+  budgetValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+
+  budgetDivider: {
+    width: 1,
+    backgroundColor: '#444',
   },
 
   filterGrid: {
@@ -129,44 +270,62 @@ const styles = StyleSheet.create({
   filterItem: {
     flexDirection: 'row',
     alignItems: 'center',
+
     width: '50%',
-    marginBottom: 15,
+    marginBottom: 10,
   },
 
   filterLabel: {
-    marginLeft: 12,
-    fontSize: 15,
+    marginLeft: 8,
+    fontSize: 14,
+    color: '#333',
   },
 
   orderHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
+
+    marginBottom: 15,
   },
 
-  addOrderBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  addBtn: {
+    padding: 8,
     borderRadius: 8,
-    backgroundColor: '#c2410c',
+    backgroundColor: '#cb6516',
   },
 
-  addOrderText: {
+  addBtnText: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#FFF',
   },
 
-  emptyTable: {
-    alignItems: 'center',
-    paddingVertical: 30,
+  /* ORDER LIST */
+
+  orderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+
+    paddingVertical: 10,
+
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
   },
 
-  emptyTableText: {
-    marginTop: 10,
-    fontSize: 13,
-    color: '#999',
+  orderName: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  orderSub: {
+    fontSize: 12,
+    color: '#888',
+  },
+
+  orderTotal: {
+    fontWeight: 'bold',
+    color: '#333',
   },
 });
 

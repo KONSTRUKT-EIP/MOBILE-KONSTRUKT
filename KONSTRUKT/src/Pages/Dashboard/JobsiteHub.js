@@ -1,106 +1,113 @@
-import React from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import api from '../../API/Api';
 import StatCircle from '../../Components/Dashboard/StatCircle';
 
-const dashboards = [
-  { id: "armature",   label: "Armature",    description: "Voiles, planchers, poutres", progress: 72 },
-  { id: "beton",      label: "Béton",       description: "Coulage, dosage, résistance", progress: 45 },
-  { id: "charpente",  label: "Charpente",   description: "Structure bois et métal",    progress: 60 },
-  { id: "electricite",label: "Électricité", description: "Câblage, tableaux, prises",  progress: 30 },
-  { id: "plomberie",  label: "Plomberie",   description: "Réseaux eau, évacuations",   progress: 55 },
-  { id: "finitions",  label: "Finitions",   description: "Peinture, revêtements",      progress: 10 },
-];
-
-const statusData = [
-  { label: 'Complet',    count: 2, total: 8, color: '#6366f1' },
-  { label: 'En cours',   count: 2, total: 8, color: '#f97316' },
-  { label: 'En attente', count: 3, total: 8, color: '#374151' },
-  { label: 'Annulé',     count: 1, total: 8, color: '#f472b6' },
-];
-
 const JobsiteHub = ({ route, navigation }) => {
-  const { chantierName } = route.params || { chantierName: "Chantier" };
+  const { chantierName } = route.params || { chantierName: "Tour Horizon" };
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const teamStats = [
+    { id: 1, label: 'Présents', percentage: 50, color: '#10b981', sub: '4 / 8' }, 
+    { id: 2, label: 'Absents',  percentage: 50, color: '#f43f5e', sub: '4 / 8' },   
+    { id: 3, label: 'Tâches',   percentage: 25, color: '#6366f1', sub: '2 / 8' }, 
+    { id: 4, label: 'En cours', percentage: 25, color: '#f97316', sub: '2 / 8' },   
+  ];
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/dashboard/armature/summary', {
+          params: {
+            startDate: '2024-01-01', 
+            endDate: '2026-12-31'
+          }
+        });
+        setData(response.data); 
+      } catch (err) {
+        console.error("Erreur API Summary:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSummary();
+  }, []);
+
+  if (loading) return (
+    <View style={styles.loader}>
+      <ActivityIndicator size="large" color="#cb6516" />
+    </View>
+  );
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton} 
-            onPress={() => navigation.goBack()}
-          >
-            <MaterialCommunityIcons name="chevron-left" size={28} color="#cb6516" />
-            <Text style={styles.backText}>Retour aux chantiers</Text>
-          </TouchableOpacity>
-          
-          <Text style={styles.breadcrumb}>Tous les chantiers  /  <Text style={styles.breadcrumbActive}>{chantierName}</Text></Text>
-          <Text style={styles.title}>{chantierName}</Text>
-          <Text style={styles.subtitle}>Sélectionne un dashboard</Text>
-        </View>
         
-        <View style={styles.statsCard}>
-          <View style={styles.statsHeader}>
-            <Text style={styles.statsTitle}>Statistiques / {chantierName}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity onPress={() => navigation.navigate('TeamList', { chantierName })}>
-                  <MaterialCommunityIcons name="account-group" size={26} color="#cb6516" style={{ marginRight: 15 }} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Attendance', { chantierName })}>
-                  <MaterialCommunityIcons name="calendar-check" size={26} color="#2e7d32" />
-                </TouchableOpacity>
-            </View>
-          </View>
-
-          <TouchableOpacity 
-            style={styles.donutGrid}
-            onPress={() => navigation.navigate('Attendance', { chantierName })}
-            activeOpacity={0.8}
-          >
-            <View style={styles.donutRow}>
-              <StatCircle percentage={50} color="#10b981" label="Présents" />
-              <StatCircle percentage={50} color="#f43f5e" label="Absents" />
-            </View>
-            <View style={styles.donutRow}>
-              <StatCircle percentage={25} color="#6366f1" label="Tâches complètes" />
-              <StatCircle percentage={25} color="#f97316" label="En cours" />
-            </View>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <MaterialCommunityIcons name="chevron-left" size={32} color="#cb6516" />
           </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <Text style={styles.summaryTitle}>RÉSUMÉ DES STATUTS</Text>
-          {statusData.map((item) => (
-            <View key={item.label} style={styles.statusRow}>
-              <View style={[styles.statusDot, { backgroundColor: item.color }]} />
-              <Text style={styles.statusLabel}>{item.label}</Text>
-              <View style={styles.progressContainer}>
-                <View style={[styles.progressBg, { flex: 1 }]}>
-                  <View style={[styles.progressFill, { width: `${(item.count / item.total) * 100}%`, backgroundColor: item.color }]} />
+          <Text style={styles.title}>{chantierName}</Text>
+        </View>
+    
+        <View style={styles.whiteCard}>
+          <Text style={styles.sectionTitle}>Statistiques / {chantierName}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalRow}>
+            {teamStats.map((item) => (
+              <View key={item.id} style={styles.statWrapper}>
+                <StatCircle 
+                  percentage={item.percentage} 
+                  color={item.color} 
+                />
+                <View style={styles.statTextContainer}>
+                    <Text style={styles.statLabelText}>{item.label}</Text>
+                    <Text style={styles.statSubText}>{item.sub}</Text>
                 </View>
-                <Text style={styles.statusCount}>{item.count} / {item.total}</Text>
               </View>
-            </View>
-          ))}
+            ))}
+          </ScrollView>
         </View>
 
-        {dashboards.map((item) => (
+        <View style={styles.actionGrid}>
           <TouchableOpacity 
-            key={item.id} 
+            style={styles.actionCard} 
+            onPress={() => navigation.navigate('TeamList', { chantierName })}
+          >
+            <View style={[styles.iconCircle, {backgroundColor: '#fff4eb'}]}>
+              <MaterialCommunityIcons name="account-group" size={26} color="#cb6516" />
+            </View>
+            <Text style={styles.actionLabel}>Équipe</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionCard} 
+            onPress={() => navigation.navigate('Attendance', { chantierName })}
+          >
+            <View style={[styles.iconCircle, {backgroundColor: '#e8f5e9'}]}>
+              <MaterialCommunityIcons name="calendar-check" size={26} color="#2e7d32" />
+            </View>
+            <Text style={styles.actionLabel}>Présences</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.sectionTitle}>Suivi par catégorie</Text>
+        {data?.categories.map((cat) => (
+          <TouchableOpacity 
+            key={cat.id} 
             style={styles.categoryCard}
-            onPress={() => navigation.navigate('TradeDashboard', { chantierName, category: item.label })}
+            onPress={() => navigation.navigate('TradeDashboard', { chantierName, category: cat.name })}
           >
             <View style={styles.cardLeft}>
-              <Text style={styles.cardLabel}>{item.label}</Text>
-              <Text style={styles.cardDesc}>{item.description}</Text>
+              <Text style={styles.cardLabel}>{cat.name}</Text>
+              <Text style={styles.cardDesc}>{cat.spent || 0} € dépensés</Text>
             </View>
             <View style={styles.cardRight}>
-              <View style={styles.progressTextRow}>
-                <Text style={styles.progressLabel}>Avancement</Text>
-                <Text style={styles.progressValue}>{item.progress}%</Text>
-              </View>
+              <Text style={styles.progressValue}>{cat.progress || 0}%</Text>
               <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: `${item.progress}%` }]} />
+                <View style={[styles.progressBarFill, { width: `${cat.progress || 0}%` }]} />
               </View>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={20} color="#333" />
@@ -113,9 +120,16 @@ const JobsiteHub = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: '#f0f4f4',
+  },
+
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   content: {
@@ -124,153 +138,108 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginBottom: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
   },
 
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    marginLeft: -5,
-  },
-
-  backText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#cb6516',
-  },
-
-  breadcrumb: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 8,
-  },
-
-  breadcrumbActive: {
-    fontWeight: 'bold',
-    color: '#1E1E1E',
+    marginRight: 10,
+    marginLeft: -10,
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#1E1E1E',
   },
 
-  subtitle: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 4,
-  },
-
-  statsCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 25,
-    padding: 20,
-    marginBottom: 25,
-
-    elevation: 4,
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-  },
-
-  statsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-
-  statsTitle: {
-    fontSize: 18,
+  sectionTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#1E1E1E',
-  },
-
-  donutGrid: {
-    marginBottom: 10,
-  },
-
-  donutRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: '#F3F4F6',
-    marginBottom: 20,
-  },
-
-  summaryTitle: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#6B7280',
-    letterSpacing: 1,
+    color: '#333',
     marginBottom: 15,
   },
 
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+  whiteCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 25,
+    padding: 20,
+    marginBottom: 20,
+    elevation: 4,
   },
 
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  horizontalRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+  },
+
+  statWrapper: {
+    width: 100,
     marginRight: 10,
-  },
-
-  statusLabel: {
-    width: 80,
-    fontSize: 13,
-    color: '#374151',
-  },
-
-  progressContainer: {
-    flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
   },
 
-  progressBg: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#F3F4F6',
-    overflow: 'hidden',
-    marginRight: 10,
+  statTextContainer: {
+    marginTop: 8,
+    alignItems: 'center',
   },
 
-  progressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-
-  statusCount: {
-    width: 35,
+  statLabelText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#374151',
-    textAlign: 'right',
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
+  statSubText: {
+    fontSize: 11,
+    color: '#999',
+    marginTop: 2,
+  },
+
+  actionGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+
+  actionCard: {
+    width: '48%',
+    padding: 20,
+    alignItems: 'center',
+
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+
+    elevation: 3,
+  },
+
+  iconCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    marginBottom: 10,
+  },
+
+  actionLabel: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#333',
   },
 
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
 
+    padding: 18,
+    marginBottom: 10,
+
     backgroundColor: '#FFF',
     borderRadius: 20,
-    padding: 18,
-    marginBottom: 12,
 
     elevation: 2,
   },
@@ -282,7 +251,6 @@ const styles = StyleSheet.create({
   cardLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1E1E1E',
   },
 
   cardDesc: {
@@ -296,33 +264,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 
-  progressTextRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-
-  progressLabel: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#374151',
-  },
-
   progressValue: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
     color: '#6366f1',
+    textAlign: 'right',
   },
 
   progressBarBg: {
-    height: 5,
-    borderRadius: 2.5,
+    height: 6,
+    marginTop: 5,
+    borderRadius: 3,
     backgroundColor: '#E5E7EB',
-    overflow: 'hidden',
   },
 
   progressBarFill: {
     height: '100%',
+    borderRadius: 3,
     backgroundColor: '#818CF8',
   },
 });
