@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: '#cb6516ff',
+    backgroundColor: '#c2410c',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
 
   registerText: {
-    color: '#cb6516ff',
+    color: '#c2410c',
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,

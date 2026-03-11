@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#FF6B00',
+    color: '#c2410c',
     textAlign: 'center',
     marginBottom: 25,
     textTransform: 'uppercase',
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   signInButton: {
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#c2410c',
     paddingVertical: 15,
     borderRadius: 25,
     width: '100%',
@@ -91,14 +91,14 @@ const styles = StyleSheet.create({
   signUpButton: {
     backgroundColor: '#FFF',
     borderWidth: 2,
-    borderColor: '#FF6B00',
+    borderColor: '#c2410c',
     paddingVertical: 15,
     borderRadius: 25,
     width: '100%',
     alignItems: 'center',
   },
   signUpText: {
-    color: '#FF6B00',
+    color: '#c2410c',
     fontSize: 16,
     fontWeight: 'bold',
   },
