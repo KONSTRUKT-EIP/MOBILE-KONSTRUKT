@@ -31,7 +31,12 @@ const DashboardList = ({ navigation }) => {
     <View style={styles.headerContainer}>
       <Text style={styles.welcomeText}>Bonjour, {userName}</Text>
       <Text style={styles.subtitle}>Sélectionnez un chantier pour commencer</Text>
-      <Text style={styles.sectionTitle}>Mes Chantiers Actifs</Text>
+      <View style={styles.sectionRow}>
+        <Text style={styles.sectionTitle}>Mes Chantiers Actifs</Text>
+        <View style={styles.countBadge}>
+          <Text style={styles.countBadgeText}>{initialChantiers.length}</Text>
+        </View>
+      </View>
     </View>
   );
 
@@ -42,7 +47,7 @@ const DashboardList = ({ navigation }) => {
     >
       <View style={styles.cardHeader}>
         <View style={styles.iconBox}>
-          <MaterialCommunityIcons name="office-building" size={24} color="#cb6516" />
+          <MaterialCommunityIcons name="office-building" size={24} color="#4f46e5" />
         </View>
         <View style={styles.info}>
           <Text style={styles.name}>{item.name}</Text>
@@ -58,6 +63,11 @@ const DashboardList = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Indigo banner matching frontend /dashboard */}
+      <View style={styles.banner}>
+        <Text style={styles.brandText}>KONSTRUKT</Text>
+        <Text style={styles.bannerTitle}>Mes Chantiers</Text>
+      </View>
       <FlatList
         data={initialChantiers}
         keyExtractor={item => item.id}
@@ -73,73 +83,110 @@ const DashboardList = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#f0f4f4' 
+    backgroundColor: '#f3f4f6',
+  },
+  banner: {
+    backgroundColor: '#4f46e5',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
+  brandText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+    color: '#c7d2fe',
+    marginBottom: 4,
+  },
+  bannerTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#ffffff',
   },
   list: { 
-    padding: 20, 
-    paddingBottom: 100 
+    padding: 16, 
+    paddingBottom: 110,
   },
   headerContainer: {
-    marginBottom: 10
+    marginBottom: 8,
+    paddingTop: 8,
   },
   welcomeText: { 
-    fontSize: 28, 
+    fontSize: 22, 
     fontWeight: 'bold', 
-    color: '#1E1E1E' 
+    color: '#111827',
   },
   subtitle: { 
-    fontSize: 15, 
-    color: '#666', 
+    fontSize: 14, 
+    color: '#6b7280', 
     marginTop: 4,
-    marginBottom: 30
+    marginBottom: 24,
+  },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   sectionTitle: { 
-    fontSize: 18, 
+    fontSize: 16, 
     fontWeight: 'bold', 
-    color: '#333', 
-    marginBottom: 15 
+    color: '#111827',
+  },
+  countBadge: {
+    marginLeft: 8,
+    backgroundColor: '#e0e7ff',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  countBadgeText: {
+    color: '#4f46e5',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   card: { 
-    backgroundColor: '#FFF', 
-    borderRadius: 18, 
-    padding: 15, 
-    marginBottom: 12,
-    elevation: 3,
+    backgroundColor: '#ffffff', 
+    borderRadius: 16, 
+    padding: 16, 
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.06,
     shadowRadius: 4,
   },
   cardHeader: { 
     flexDirection: 'row', 
-    alignItems: 'center' 
+    alignItems: 'center',
   },
   iconBox: { 
-    width: 50, 
-    height: 50, 
+    width: 48, 
+    height: 48, 
     borderRadius: 12, 
-    backgroundColor: '#fff4eb', 
+    backgroundColor: '#e0e7ff', 
     justifyContent: 'center', 
-    alignItems: 'center' 
+    alignItems: 'center',
   },
   info: { 
     flex: 1, 
-    marginLeft: 15 
+    marginLeft: 14,
   },
   name: { 
-    fontSize: 17, 
+    fontSize: 16, 
     fontWeight: 'bold', 
-    color: '#333' 
+    color: '#111827',
   },
   locationRow: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    marginTop: 4 
+    marginTop: 4,
   },
   location: { 
     fontSize: 13, 
-    color: '#666', 
-    marginLeft: 4 
+    color: '#6b7280', 
+    marginLeft: 4,
   },
 });
 

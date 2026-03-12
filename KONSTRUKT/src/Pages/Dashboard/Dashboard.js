@@ -32,7 +32,7 @@ const DashboardPage = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <MaterialCommunityIcons name="chevron-left" size={28} color="#cb6516" />
+          <MaterialCommunityIcons name="chevron-left" size={28} color="#c2410c" />
           <Text style={styles.backText}>Liste des chantiers</Text>
         </TouchableOpacity>
 
@@ -61,8 +61,8 @@ const DashboardPage = ({ route, navigation }) => {
             style={styles.actionCard}
             onPress={() => navigation.navigate('TeamList', { chantierName })}
           >
-            <View style={[styles.iconCircle, {backgroundColor: '#fff4eb'}]}>
-              <MaterialCommunityIcons name="account-group" size={26} color="#cb6516" />
+            <View style={[styles.iconCircle, {backgroundColor: '#ffedd5'}]}>
+              <MaterialCommunityIcons name="account-group" size={26} color="#c2410c" />
             </View>
             <Text style={styles.actionLabel}>Équipe</Text>
             <Text style={styles.actionSub}>24 membres</Text>
@@ -105,7 +105,7 @@ const DashboardPage = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f4',
+    backgroundColor: '#f3f4f6',
   },
 
   content: {
@@ -133,36 +133,33 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1E1E1E',
+    color: '#111827',
   },
 
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#6b7280',
     marginTop: 4,
   },
 
   whiteCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 25,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-
-    elevation: 4,
-
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
   },
 
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
     marginBottom: 15,
   },
 
@@ -179,13 +176,12 @@ const styles = StyleSheet.create({
   actionCard: {
     width: '48%',
     padding: 20,
-
     alignItems: 'center',
-
-    backgroundColor: '#FFF',
-    borderRadius: 20,
-
-    elevation: 3,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    elevation: 2,
   },
 
   iconCircle: {
@@ -202,12 +198,12 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   actionSub: {
     fontSize: 12,
-    color: '#888',
+    color: '#6b7280',
     marginTop: 2,
   },
 
@@ -219,24 +215,23 @@ const styles = StyleSheet.create({
   miniCard: {
     width: '48%',
     padding: 15,
-
     alignItems: 'center',
-
-    backgroundColor: '#FFF',
-    borderRadius: 15,
-
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
     elevation: 2,
   },
 
   miniVal: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   miniLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#6b7280',
   },
 
   placeholderCard: {

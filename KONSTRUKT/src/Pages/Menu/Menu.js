@@ -4,10 +4,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const MoreMenuPage = ({ navigation }) => {
   const menuOptions = [
-    { id: 'msg', title: 'Messagerie', icon: 'message-text-outline', color: '#cb6516' },
-    { id: 'team', title: 'Équipe', icon: 'account-group-outline', color: '#1E1E1E' },
-    { id: 'cli', title: 'Clients', icon: 'briefcase-outline', color: '#1E1E1E' },
-    { id: 'cal', title: 'Calendrier', icon: 'calendar-month-outline', color: '#1E1E1E' },
+    { id: 'msg', title: 'Messagerie', icon: 'message-text-outline', color: '#c2410c' },
+    { id: 'team', title: 'Équipe', icon: 'account-group-outline', color: '#374151' },
+    { id: 'cli', title: 'Clients', icon: 'briefcase-outline', color: '#374151' },
+    { id: 'cal', title: 'Calendrier', icon: 'calendar-month-outline', color: '#374151' },
   ];
 
   return (
@@ -52,13 +52,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#111827',
   },
 
   menuLabel: {
     flex: 1,
     fontSize: 16,
-    color: '#333333',
+    color: '#111827',
     fontWeight: '500',
   },
 

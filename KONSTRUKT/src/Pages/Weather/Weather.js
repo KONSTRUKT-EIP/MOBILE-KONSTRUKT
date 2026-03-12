@@ -46,7 +46,7 @@ const WeatherPage = () => {
     }
   };
 
-  if (loading && !weatherData) return <View style={styles.loader}><ActivityIndicator size="large" color="#cb6516" /></View>;
+  if (loading && !weatherData) return <View style={styles.loader}><ActivityIndicator size="large" color="#c2410c" /></View>;
 
   return (
     <View style={styles.container}>
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f3f4f6',
   },
 
   loader: {

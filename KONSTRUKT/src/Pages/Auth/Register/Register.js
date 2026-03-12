@@ -11,11 +11,8 @@ const RegisterPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('OUVRIER'); 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const roles = ["ADMIN", "CHEF_CHANTIER", "CONDUCTEUR", "OUVRIER", "SOUS_TRAITANT", "VIEWER"];
 
   const isFormIncomplete = !firstName.trim() || !lastName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim();
 
@@ -28,8 +25,13 @@ const RegisterPage = ({ navigation }) => {
       setError("Les mots de passe ne correspondent pas.");
       return;
     }
-    if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).+$/;
+    if (!passwordRegex.test(password)) {
+      setError("Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&#).");
       return;
     }
     setError('');
@@ -40,7 +42,6 @@ const RegisterPage = ({ navigation }) => {
         lastName,
         email,
         password,
-        role: role
       });
       navigation.navigate('Success');
     } catch (err) {
@@ -73,7 +74,7 @@ const RegisterPage = ({ navigation }) => {
                 <TextInput
                   style={styles.input}
                   placeholder="Prénom"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#9ca3af"
                   value={firstName}
                   onChangeText={(text) => { setFirstName(text); setError(''); }}
                 />
@@ -83,7 +84,7 @@ const RegisterPage = ({ navigation }) => {
                 <TextInput
                   style={styles.input}
                   placeholder="Nom"
-                  placeholderTextColor="#666"
+                  placeholderTextColor="#9ca3af"
                   value={lastName}
                   onChangeText={(text) => { setLastName(text); setError(''); }}
                 />
@@ -94,33 +95,18 @@ const RegisterPage = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="exemple@mail.com"
-              placeholderTextColor="#666"
+              placeholderTextColor="#9ca3af"
               value={email}
               onChangeText={(text) => { setEmail(text); setError(''); }}
               keyboardType="email-address"
               autoCapitalize="none"
             />
 
-            <Text style={styles.inputLabel}>Choisissez votre rôle</Text>
-            <View style={styles.roleGrid}>
-              {roles.map((r) => (
-                <TouchableOpacity
-                  key={r}
-                  style={[styles.roleBadge, role === r && styles.roleBadgeActive]}
-                  onPress={() => setRole(r)}
-                >
-                  <Text style={[styles.roleBadgeText, role === r && styles.roleBadgeTextActive]}>
-                    {r.replace('_', ' ')}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
             <Text style={styles.inputLabel}>Mot de passe</Text>
             <TextInput
               style={styles.input}
               placeholder="Mot de passe"
-              placeholderTextColor="#666"
+              placeholderTextColor="#9ca3af"
               value={password}
               onChangeText={(text) => { setPassword(text); setError(''); }}
               secureTextEntry
@@ -130,7 +116,7 @@ const RegisterPage = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="Confirmer"
-              placeholderTextColor="#666"
+              placeholderTextColor="#9ca3af"
               value={confirmPassword}
               onChangeText={(text) => { setConfirmPassword(text); setError(''); }}
               secureTextEntry
@@ -166,7 +152,7 @@ const RegisterPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9f0f0',
+    backgroundColor: '#f3f4f6',
   },
 
   scrollContainer: {
@@ -175,26 +161,35 @@ const styles = StyleSheet.create({
   },
 
   inner: {
-    padding: 20,
+    padding: 24,
     alignItems: 'center',
   },
 
   form: {
     width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
   },
 
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
     marginBottom: 20,
     textAlign: 'center',
   },
 
   logo: {
-    width: 140,
-    height: 140,
-    marginBottom: 5,
+    width: 120,
+    height: 120,
+    marginBottom: 12,
   },
 
   row: {
@@ -203,7 +198,7 @@ const styles = StyleSheet.create({
   },
 
   inputLabel: {
-    color: '#333',
+    color: '#374151',
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 5,
@@ -211,13 +206,14 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: '#1E1E1E',
-    color: '#FFF',
+    backgroundColor: '#f3f4f6',
+    color: '#111827',
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: '#e5e7eb',
+    fontSize: 14,
   },
 
   roleGrid: {
@@ -245,9 +241,7 @@ const styles = StyleSheet.create({
   },
 
   roleBadgeText: {
-    color: '#666',
-    fontSize: 10,
-    fontWeight: 'bold',
+    color: '#6b7280',
   },
 
   roleBadgeTextActive: {
@@ -265,18 +259,17 @@ const styles = StyleSheet.create({
   },
 
   buttonDisabled: {
-    backgroundColor: '#a1a1a1',
-    opacity: 0.5,
+    opacity: 0.4,
   },
 
   buttonText: {
-    color: '#FFF',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
   },
 
   errorText: {
-    color: '#d32f2f',
+    color: '#ef4444',
     fontSize: 12,
     fontWeight: '500',
     marginBottom: 10,
@@ -290,7 +283,7 @@ const styles = StyleSheet.create({
   },
 
   alreadyAccountText: {
-    color: '#666',
+    color: '#6b7280',
     fontSize: 14,
   },
 
@@ -298,7 +291,7 @@ const styles = StyleSheet.create({
     color: '#c2410c',
     fontSize: 14,
     fontWeight: 'bold',
-    marginLeft: 5,
+    marginLeft: 4,
   },
 });
 

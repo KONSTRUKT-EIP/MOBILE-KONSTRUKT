@@ -46,24 +46,27 @@ const TabNavigator = ({ navigation }) => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true,
-        headerStyle: { backgroundColor: '#FFF', elevation: 0, shadowOpacity: 0 },
-        headerTitleStyle: { fontWeight: 'bold', color: '#333' },
+        headerStyle: { backgroundColor: '#f3f4f6', elevation: 0, shadowOpacity: 0 },
+        headerTitleStyle: { fontWeight: 'bold', color: '#111827' },
         headerRight: () => (
           <TouchableOpacity onPress={handleLogout} style={{ marginRight: 20 }}>
-            <MaterialCommunityIcons name="cog" size={30} color="#cb6516" />
+            <MaterialCommunityIcons name="cog" size={30} color="#c2410c" />
           </TouchableOpacity>
         ),
-        tabBarActiveTintColor: '#FF5722',
-        tabBarInactiveTintColor: '#607D8B',
+        tabBarActiveTintColor: '#c2410c',
+        tabBarInactiveTintColor: '#9ca3af',
         tabBarLabelStyle: { fontSize: 12, fontWeight: '700', marginBottom: 8 },
         tabBarStyle: {
-          backgroundColor: '#FFF',
-          borderTopLeftRadius: 25,
-          borderTopRightRadius: 25,
-          height: 95,
+          backgroundColor: '#ffffff',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          height: 88,
           position: 'absolute',
-          paddingBottom: 20,
-          elevation: 10,
+          paddingBottom: 16,
+          paddingTop: 8,
+          borderTopWidth: 1,
+          borderTopColor: '#f3f4f6',
+          elevation: 8,
         },
         tabBarIcon: ({ color }) => {
           let iconName;

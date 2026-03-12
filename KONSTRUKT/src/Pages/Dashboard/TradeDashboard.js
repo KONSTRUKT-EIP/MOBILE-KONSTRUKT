@@ -50,7 +50,7 @@ const TradeDashboard = ({ route, navigation }) => {
     }
   };
 
-  if (loading) return <View style={styles.loader}><ActivityIndicator size="large" color="#cb6516" /></View>;
+  if (loading) return <View style={styles.loader}><ActivityIndicator size="large" color="#c2410c" /></View>;
 
   return (
     <View style={styles.container}>
@@ -58,7 +58,7 @@ const TradeDashboard = ({ route, navigation }) => {
         
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <MaterialCommunityIcons name="chevron-left" size={30} color="#cb6516" />
+            <MaterialCommunityIcons name="chevron-left" size={30} color="#c2410c" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Analytics / {category}</Text>
         </View>
@@ -89,7 +89,7 @@ const TradeDashboard = ({ route, navigation }) => {
           <View style={styles.budgetDivider} />
           <View style={styles.budgetItem}>
             <Text style={styles.budgetLabel}>Consommé</Text>
-            <Text style={[styles.budgetValue, {color: '#cb6516'}]}>{reportData?.totalSpent} €</Text>
+            <Text style={[styles.budgetValue, {color: '#c2410c'}]}>{reportData?.totalSpent} €</Text>
           </View>
         </View>
     
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f4',
+    backgroundColor: '#f3f4f6',
   },
 
   loader: {
@@ -175,39 +175,38 @@ const styles = StyleSheet.create({
   kpiCard: {
     width: '31%',
     padding: 10,
-
     alignItems: 'center',
-
-    backgroundColor: '#FFF',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
-
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
     elevation: 2,
   },
 
   kpiLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#666',
+    color: '#6b7280',
   },
 
   kpiValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#cb6516',
+    color: '#c2410c',
   },
 
   kpiSpent: {
     fontSize: 9,
-    color: '#999',
+    color: '#9ca3af',
   },
 
   whiteCard: {
     padding: 15,
     marginBottom: 15,
-
-    backgroundColor: '#FFF',
-    borderRadius: 15,
-
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
     elevation: 2,
   },
 
@@ -278,7 +277,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#333',
+    color: '#111827',
   },
 
   orderHeader: {
@@ -292,7 +291,7 @@ const styles = StyleSheet.create({
   addBtn: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#cb6516',
+    backgroundColor: '#c2410c',
   },
 
   addBtnText: {
@@ -320,12 +319,12 @@ const styles = StyleSheet.create({
 
   orderSub: {
     fontSize: 12,
-    color: '#888',
+    color: '#6b7280',
   },
 
   orderTotal: {
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 });
 

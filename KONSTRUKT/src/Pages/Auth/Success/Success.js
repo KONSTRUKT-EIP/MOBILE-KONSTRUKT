@@ -32,7 +32,7 @@ const SuccessPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9f0f0',
+    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -60,16 +60,16 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
+    color: '#111827',
     textAlign: 'center',
     marginBottom: 40,
     lineHeight: 28,
   },
   button: {
-    backgroundColor: '#cb6516ff',
+    backgroundColor: '#c2410c',
     paddingVertical: 15,
     paddingHorizontal: 35,
-    borderRadius: 10,
+    borderRadius: 12,
   },
   buttonText: {
     color: '#FFF',

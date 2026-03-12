@@ -41,7 +41,7 @@ const TeamListPage = ({ navigation, route }) => {
       case 'En attente': return { bg: '#fff3e0', text: '#ef6c00' };
       case 'Annulé': return { bg: '#ffebee', text: '#c62828' };
       case 'En cours': return { bg: '#f5f5f5', text: '#616161' };
-      default: return { bg: '#eee', text: '#333' };
+      default: return { bg: '#e5e7eb', text: '#374151' };
     }
   };
 
@@ -89,7 +89,7 @@ const TeamListPage = ({ navigation, route }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <MaterialCommunityIcons name="chevron-left" size={28} color="#cb6516" />
+          <MaterialCommunityIcons name="chevron-left" size={28} color="#c2410c" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Équipe / {chantierName}</Text>
       </View>
@@ -124,14 +124,14 @@ const TeamListPage = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
+    backgroundColor: '#f3f4f6',
   },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#FFF',
+    backgroundColor: '#f3f4f6',
   },
 
   backBtn: {
@@ -141,14 +141,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   searchSection: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#FFF',
+    backgroundColor: '#f3f4f6',
   },
 
   searchBar: {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 8,
     fontSize: 14,
-    color: '#333',
+    color: '#111827',
   },
 
   addButton: {
@@ -190,32 +190,24 @@ const styles = StyleSheet.create({
   },
 
   workerCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 15,
-
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
     marginBottom: 10,
-
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: '#f3f4f6',
     overflow: 'hidden',
-
     elevation: 2,
-
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
   },
 
   workerCardExpanded: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#ffffff',
     borderColor: '#c2410c',
-
-    elevation: 5,
-    shadowOpacity: 0.15,
+    elevation: 4,
+    shadowOpacity: 0.12,
   },
 
   mainRow: {
@@ -245,14 +237,14 @@ const styles = StyleSheet.create({
   },
 
   workerName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   workerSpecialty: {
-    fontSize: 13,
-    color: '#666',
+    fontSize: 12,
+    color: '#6b7280',
     marginTop: 2,
   },
 
