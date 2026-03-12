@@ -2,56 +2,101 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import StatCircle from '../../Components/Dashboard/StatCircle'; //
 
-const DashboardPage = ({ navigation }) => {
+const DashboardPage = ({ route, navigation }) => {
+  const { chantierName } = route.params || { chantierName: "Chantier" };
   const [userName, setUserName] = useState('Utilisateur');
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const storedName = await AsyncStorage.getItem('userFirstName');
-        if (storedName) {
-          setUserName(storedName);
-        }
+        const storedName = await AsyncStorage.getItem('userFirstName'); //
+        if (storedName) setUserName(storedName);
       } catch (e) {
-        console.error("Erreur lors de la récupération du prénom", e);
+        console.error("Erreur prénom", e);
       }
     };
     fetchUserData();
   }, []);
 
-  const stats = [
-    { id: 1, label: 'Chantiers actifs', value: '12', icon: 'crane', color: '#cb6516' },
-    { id: 2, label: 'Commandes doutes', value: '3', icon: 'alert-circle', color: '#d32f2f' },
-    { id: 3, label: 'Ouvriers sur site', value: '24', icon: 'account-group', color: '#1E1E1E' },
+  const attendanceStats = [
+    { id: 1, label: 'Présents', percentage: 75, color: '#10b981' }, 
+    { id: 2, label: 'Tâches', percentage: 45, color: '#6366f1' },   
+    { id: 3, label: 'En cours', percentage: 60, color: '#f97316' }, 
+    { id: 4, label: 'Absents', percentage: 15, color: '#f43f5e' },   
   ];
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.welcomeText}>Bonjour, {userName} </Text>
-        <Text style={styles.subtitle}>Voici l'état actuel de vos chantiers</Text>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        <View style={styles.statsGrid}>
-          {stats.map((item) => (
-            <View key={item.id} style={styles.statCard}>
-              <MaterialCommunityIcons name={item.icon} size={24} color={item.color} />
-              <Text style={styles.statValue}>{item.value}</Text>
-              <Text style={styles.statLabel}>{item.label}</Text>
-            </View>
-          ))}
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <MaterialCommunityIcons name="chevron-left" size={28} color="#cb6516" />
+          <Text style={styles.backText}>Liste des chantiers</Text>
+        </TouchableOpacity>
+
+        <View style={styles.welcomeHeader}>
+          <Text style={styles.welcomeText}>{chantierName}</Text> 
+          <Text style={styles.subtitle}>Bonjour {userName}, voici le suivi d'aujourd'hui</Text>
+        </View>
+    
+        <View style={styles.whiteCard}>
+          <Text style={styles.sectionTitle}>Statistiques d'équipe</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalRow}>
+            {attendanceStats.map((item) => (
+              <StatCircle 
+                key={item.id} 
+                percentage={item.percentage} 
+                color={item.color} 
+                label={item.label} 
+              />
+            ))}
+          </ScrollView>
         </View>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Dernière alerte météo</Text>
-          <View style={styles.alertRow}>
-            <MaterialCommunityIcons name="weather-windy" size={30} color="#cb6516" />
-            <View style={styles.alertTextContainer}>
-              <Text style={styles.alertBold}>Vents violents prévus</Text>
-              <Text style={styles.alertSub}>Arrêt des grues conseillé à 14h00 sur le site.</Text>
+        <View style={styles.actionGrid}>
+          
+          <TouchableOpacity 
+            style={styles.actionCard}
+            onPress={() => navigation.navigate('TeamList', { chantierName })}
+          >
+            <View style={[styles.iconCircle, {backgroundColor: '#fff4eb'}]}>
+              <MaterialCommunityIcons name="account-group" size={26} color="#cb6516" />
             </View>
+            <Text style={styles.actionLabel}>Équipe</Text>
+            <Text style={styles.actionSub}>24 membres</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionCard}
+            onPress={() => navigation.navigate('Attendance', { chantierName })}
+          >
+            <View style={[styles.iconCircle, {backgroundColor: '#e8f5e9'}]}>
+              <MaterialCommunityIcons name="calendar-check" size={26} color="#2e7d32" />
+            </View>
+            <Text style={styles.actionLabel}>Présences</Text>
+            <Text style={styles.actionSub}>Saisie du jour</Text>
+          </TouchableOpacity>
+
+        </View>
+
+        <View style={styles.summaryGrid}>
+          <View style={styles.miniCard}>
+            <Text style={[styles.miniVal, {color: '#d32f2f'}]}>3</Text>
+            <Text style={styles.miniLabel}>Urgences</Text>
+          </View>
+          <View style={styles.miniCard}>
+            <Text style={styles.miniVal}>12</Text>
+            <Text style={styles.miniLabel}>Lots validés</Text>
           </View>
         </View>
+
+        <View style={styles.placeholderCard}>
+          <MaterialCommunityIcons name="crane" size={24} color="#CCC" />
+          <Text style={styles.placeholderText}>Suivi béton & armature (bientôt)</Text>
+        </View>
+
       </ScrollView>
     </View>
   );
@@ -60,96 +105,159 @@ const DashboardPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9f0f0',
+    backgroundColor: '#f0f4f4',
   },
 
   content: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 110,
+  },
+
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    marginLeft: -5,
+  },
+
+  backText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#c2410c',
+  },
+
+  welcomeHeader: {
+    marginBottom: 20,
   },
 
   welcomeText: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1E1E1E',
   },
 
   subtitle: {
     fontSize: 14,
     color: '#666',
-    marginTop: 5,
-    marginBottom: 25,
+    marginTop: 4,
   },
 
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 25,
-  },
-
-  statCard: {
-    width: '31%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 15,
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginVertical: 5,
-  },
-
-  statLabel: {
-    fontSize: 10,
-    color: '#666',
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-
-  infoBox: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 15,
+  whiteCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 25,
     padding: 20,
-    marginTop: 10,
+    marginBottom: 20,
+
+    elevation: 4,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
   },
 
-  infoTitle: {
-    color: '#cb6516',
+  sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
     marginBottom: 15,
   },
 
-  alertRow: {
+  horizontalRow: {
     flexDirection: 'row',
+  },
+
+  actionGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+
+  actionCard: {
+    width: '48%',
+    padding: 20,
+
     alignItems: 'center',
+
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+
+    elevation: 3,
   },
 
-  alertTextContainer: {
-    flex: 1,
-    marginLeft: 15,
+  iconCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    marginBottom: 10,
   },
 
-  alertBold: {
-    color: '#FFFFFF',
-    fontSize: 15,
+  actionLabel: {
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
   },
 
-  alertSub: {
-    color: '#BBBBBB',
+  actionSub: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
+  },
+
+  summaryGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  miniCard: {
+    width: '48%',
+    padding: 15,
+
+    alignItems: 'center',
+
+    backgroundColor: '#FFF',
+    borderRadius: 15,
+
+    elevation: 2,
+  },
+
+  miniVal: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
+  miniLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+
+  placeholderCard: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    marginTop: 20,
+    padding: 25,
+
+    borderRadius: 20,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#DDD',
+  },
+
+  placeholderText: {
     fontSize: 13,
-    marginTop: 4,
+    color: '#AAA',
+    marginLeft: 10,
   },
 });
-
 
 export default DashboardPage;

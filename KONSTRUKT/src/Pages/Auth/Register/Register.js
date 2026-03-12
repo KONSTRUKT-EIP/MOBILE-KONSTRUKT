@@ -240,8 +240,8 @@ const styles = StyleSheet.create({
   },
 
   roleBadgeActive: {
-    backgroundColor: '#cb6516',
-    borderColor: '#cb6516',
+    backgroundColor: '#c2410c',
+    borderColor: '#c2410c',
   },
 
   roleBadgeText: {
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: '#cb6516',
+    backgroundColor: '#c2410c',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
 
   loginLinkText: {
-    color: '#cb6516',
+    color: '#c2410c',
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,

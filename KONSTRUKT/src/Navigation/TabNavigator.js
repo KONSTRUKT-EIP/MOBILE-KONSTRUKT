@@ -1,16 +1,38 @@
 import React from 'react';
 import { TouchableOpacity, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Import des pages
+import DashboardList from '../Pages/Dashboard/DashboardList';
 import DashboardPage from '../Pages/Dashboard/Dashboard';
 import WorksitesPage from '../Pages/Worksites/Worksites';
 import OrdersPage from '../Pages/Orders/Orders';
 import PlanningPage from '../Pages/Planning/Planning';
 import WeatherPage from '../Pages/Weather/Weather';
+import TeamListPage from '../Pages/Dashboard/TeamList';
+import AttendancePage from '../Pages/Dashboard/AttendancePage';
+import JobsiteHub from '../Pages/Dashboard/JobsiteHub';
+import TradeDashboard from '../Pages/Dashboard/TradeDashboard';
 
 const Tab = createBottomTabNavigator();
+const DashboardStack = createNativeStackNavigator();
+
+function DashboardStackScreen() {
+  return (
+    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+      {/* CORRECTION : DashboardList en premier pour être l'écran par défaut */}
+      <DashboardStack.Screen name="DashboardList" component={DashboardList} />
+      <DashboardStack.Screen name="JobsiteHub" component={JobsiteHub} />
+      <DashboardStack.Screen name="TradeDashboard" component={TradeDashboard} />
+      <DashboardStack.Screen name="DashboardDetail" component={DashboardPage} />
+      <DashboardStack.Screen name="TeamList" component={TeamListPage} />
+      <DashboardStack.Screen name="Attendance" component={AttendancePage} />
+    </DashboardStack.Navigator>
+  );
+}
 
 const TabNavigator = ({ navigation }) => {
   const handleLogout = () => {
@@ -54,7 +76,7 @@ const TabNavigator = ({ navigation }) => {
         },
       })}
     >
-      <Tab.Screen name="Dashboard" component={DashboardPage} />
+      <Tab.Screen name="Dashboard" component={DashboardStackScreen} />
       <Tab.Screen name="Commandes" component={OrdersPage} />
       <Tab.Screen name="Chantiers" component={WorksitesPage} />
       <Tab.Screen name="Planning" component={PlanningPage} />
