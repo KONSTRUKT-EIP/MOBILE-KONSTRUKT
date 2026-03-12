@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   modalTitle: { 
     fontSize: 24, 
     fontWeight: 'bold', 
-    color: '#1E1E1E', 
+    color: '#111827', 
     marginBottom: 20 
   },
   inputLabel: { 
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 10, 
     padding: 12,
     fontSize: 16, 
-    color: '#1E1E1E' 
+    color: '#111827' 
   },
   row: { 
     flexDirection: 'row' 
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   },
   totalText: { 
     fontSize: 16, 
-    color: '#1E1E1E' 
+    color: '#111827' 
   },
   modalActions: { 
     flexDirection: 'row', 

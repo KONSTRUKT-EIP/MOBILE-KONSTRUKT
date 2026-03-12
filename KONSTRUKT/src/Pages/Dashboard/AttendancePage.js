@@ -65,7 +65,7 @@ const AttendancePage = ({ navigation, route }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialCommunityIcons name="chevron-left" size={28} color="#cb6516" />
+          <MaterialCommunityIcons name="chevron-left" size={28} color="#c2410c" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Présences</Text>
       </View>
@@ -107,37 +107,36 @@ const AttendancePage = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f3f4f6',
   },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#FFF',
+    backgroundColor: '#f3f4f6',
   },
 
   headerTitle: {
     marginLeft: 10,
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   selectorContainer: {
-    paddingVertical: 15,
-    backgroundColor: '#FFF',
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
+    borderBottomColor: '#f3f4f6',
   },
 
   dayButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingVertical: 8,
     marginHorizontal: 5,
-
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
+    borderRadius: 999,
+    backgroundColor: '#f3f4f6',
   },
 
   dayButtonActive: {
@@ -147,11 +146,11 @@ const styles = StyleSheet.create({
   dayText: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#666',
+    color: '#6b7280',
   },
 
   dayTextActive: {
-    color: '#FFF',
+    color: '#ffffff',
   },
 
   list: {
@@ -162,13 +161,12 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-
     padding: 15,
     marginBottom: 10,
-
-    backgroundColor: '#FFF',
-    borderRadius: 15,
-
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
     elevation: 2,
   },
 
@@ -194,12 +192,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   sub: {
     fontSize: 12,
-    color: '#999',
+    color: '#6b7280',
   },
 
   badge: {
@@ -244,14 +242,14 @@ const styles = StyleSheet.create({
 
   summaryLabel: {
     fontSize: 10,
-    color: '#666',
+    color: '#6b7280',
     marginRight: 4,
   },
 
   summaryCount: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 });
 

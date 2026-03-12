@@ -38,7 +38,7 @@ const JobsiteHub = ({ route, navigation }) => {
 
   if (loading) return (
     <View style={styles.loader}>
-      <ActivityIndicator size="large" color="#cb6516" />
+      <ActivityIndicator size="large" color="#c2410c" />
     </View>
   );
 
@@ -48,7 +48,7 @@ const JobsiteHub = ({ route, navigation }) => {
         
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <MaterialCommunityIcons name="chevron-left" size={32} color="#cb6516" />
+            <MaterialCommunityIcons name="chevron-left" size={32} color="#c2410c" />
           </TouchableOpacity>
           <Text style={styles.title}>{chantierName}</Text>
         </View>
@@ -76,8 +76,8 @@ const JobsiteHub = ({ route, navigation }) => {
             style={styles.actionCard} 
             onPress={() => navigation.navigate('TeamList', { chantierName })}
           >
-            <View style={[styles.iconCircle, {backgroundColor: '#fff4eb'}]}>
-              <MaterialCommunityIcons name="account-group" size={26} color="#cb6516" />
+            <View style={[styles.iconCircle, {backgroundColor: '#e0e7ff'}]}>
+              <MaterialCommunityIcons name="account-group" size={26} color="#4f46e5" />
             </View>
             <Text style={styles.actionLabel}>Équipe</Text>
           </TouchableOpacity>
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f4',
+    backgroundColor: '#f3f4f6',
   },
 
   loader: {
@@ -149,24 +149,29 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#1E1E1E',
+    color: '#111827',
   },
 
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    color: '#111827',
+    marginBottom: 14,
   },
 
   whiteCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 25,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
   },
 
   horizontalRow: {
@@ -188,12 +193,12 @@ const styles = StyleSheet.create({
   statLabelText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   statSubText: {
     fontSize: 11,
-    color: '#999',
+    color: '#9ca3af',
     marginTop: 2,
   },
 
@@ -207,11 +212,14 @@ const styles = StyleSheet.create({
     width: '48%',
     padding: 20,
     alignItems: 'center',
-
-    backgroundColor: '#FFF',
-    borderRadius: 20,
-
-    elevation: 3,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
   },
 
   iconCircle: {
@@ -228,20 +236,22 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
-
-    padding: 18,
+    padding: 16,
     marginBottom: 10,
-
-    backgroundColor: '#FFF',
-    borderRadius: 20,
-
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
     elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
   },
 
   cardLeft: {

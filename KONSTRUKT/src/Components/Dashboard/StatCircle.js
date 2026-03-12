@@ -55,14 +55,14 @@ const styles = StyleSheet.create({
   percentageText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
 
   label: {
     marginTop: 8,
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: '#6b7280',
   },
 });
 

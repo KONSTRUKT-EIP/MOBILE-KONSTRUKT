@@ -6,12 +6,12 @@ import MenuCard from '../../Components/MenuCard';
 const HomePage = ({ navigation }) => {
   
   const menuItems = [
-    { id: 'dash', title: 'Dashboard', icon: 'view-dashboard', color: '#cb6516' },
-    { id: 'cmd', title: 'Commandes', icon: 'cart', color: '#1E1E1E' },
-    { id: 'met', title: 'Météo & Alertes', icon: 'weather-sunny-alert', color: '#1E1E1E' },
-    { id: 'cha', title: 'Chantiers', icon: 'office-building', color: '#1E1E1E' },
-    { id: 'pla', title: 'Plannings', icon: 'calendar-clock', color: '#1E1E1E' },
-    { id: 'set', title: 'Réglages', icon: 'cog', color: '#1E1E1E' },
+    { id: 'dash', title: 'Dashboard', icon: 'view-dashboard', color: '#c2410c' },
+    { id: 'cmd', title: 'Commandes', icon: 'cart', color: '#374151' },
+    { id: 'met', title: 'Météo & Alertes', icon: 'weather-sunny-alert', color: '#374151' },
+    { id: 'cha', title: 'Chantiers', icon: 'office-building', color: '#374151' },
+    { id: 'pla', title: 'Plannings', icon: 'calendar-clock', color: '#374151' },
+    { id: 'set', title: 'Réglages', icon: 'cog', color: '#374151' },
   ];
 
   const handlePress = (id) => {
@@ -55,7 +55,7 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9f0f0',
+    backgroundColor: '#f3f4f6',
   },
 
   scrollContainer: {
@@ -69,19 +69,19 @@ const styles = StyleSheet.create({
 
   welcomeText: {
     fontSize: 18,
-    color: '#666666',
+    color: '#6b7280',
   },
 
   brandText: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#111827',
   },
 
   sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#888888',
+    color: '#9ca3af',
     letterSpacing: 1.2,
     marginBottom: 20,
   },

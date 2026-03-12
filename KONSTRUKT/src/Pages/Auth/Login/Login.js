@@ -64,7 +64,7 @@ const LoginPage = ({ navigation }) => {
           <TextInput
             style={[styles.input, error ? styles.inputError : null]}
             placeholder="exemple@mail.com"
-            placeholderTextColor="#666"
+            placeholderTextColor="#9ca3af"
             value={email}
             onChangeText={(text) => { setEmail(text); setError(''); }}
             keyboardType="email-address"
@@ -75,7 +75,7 @@ const LoginPage = ({ navigation }) => {
           <TextInput
             style={styles.input}
             placeholder="Votre mot de passe"
-            placeholderTextColor="#666"
+            placeholderTextColor="#9ca3af"
             value={password}
             onChangeText={(text) => { setPassword(text); setError(''); }}
             secureTextEntry
@@ -117,53 +117,64 @@ const LoginPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9f0f0',
+    backgroundColor: '#f3f4f6',
   },
 
   inner: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 24,
   },
 
   form: {
     width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
   },
+
   logo: {
-    width: 220,
-    height: 220,
-    marginBottom: 0,
+    width: 160,
+    height: 160,
+    marginBottom: 12,
   },
 
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 25,
+    color: '#111827',
+    marginBottom: 24,
     textAlign: 'center',
   },
 
   inputLabel: {
-    color: '#333',
-    fontSize: 14,
+    color: '#374151',
+    fontSize: 13,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 6,
     marginLeft: 2,
   },
 
   input: {
-    backgroundColor: '#1E1E1E',
-    color: '#FFF',
-    padding: 15,
+    backgroundColor: '#f3f4f6',
+    color: '#111827',
+    padding: 13,
     borderRadius: 8,
-    marginBottom: 15,
+    marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: '#e5e7eb',
+    fontSize: 14,
   },
 
   inputError: {
-    borderColor: '#d32f2f',
+    borderColor: '#ef4444',
   },
 
   button: {
@@ -171,37 +182,36 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10,
-    height: 55,
+    marginTop: 8,
+    height: 52,
     justifyContent: 'center',
   },
 
   buttonDisabled: {
-    backgroundColor: '#a1a1a1',
-    opacity: 0.5,
+    opacity: 0.4,
   },
 
   buttonText: {
-    color: '#FFF',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
   },
 
   errorText: {
-    color: '#d32f2f',
+    color: '#ef4444',
     fontSize: 13,
     fontWeight: '500',
-    marginBottom: 15,
+    marginBottom: 12,
     textAlign: 'center',
   },
 
   forgotPasswordContainer: {
-    marginTop: 15,
+    marginTop: 14,
     alignItems: 'center',
   },
 
   forgotPasswordText: {
-    color: '#666',
+    color: '#6b7280',
     fontSize: 14,
   },
 
@@ -209,11 +219,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 30,
+    marginTop: 24,
   },
 
   noAccountText: {
-    color: '#666',
+    color: '#6b7280',
     fontSize: 14,
   },
 
@@ -221,9 +231,9 @@ const styles = StyleSheet.create({
     color: '#c2410c',
     fontSize: 14,
     fontWeight: 'bold',
-    marginLeft: 5,
+    marginLeft: 4,
   },
-  
+
   linkTouchZone: {
     paddingVertical: 5,
     paddingHorizontal: 2,
