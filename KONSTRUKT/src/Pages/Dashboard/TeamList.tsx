@@ -1,0 +1,181 @@
+import React, { useState } from 'react';
+import { 
+  StyleSheet, View, Text, FlatList, TouchableOpacity, 
+  TextInput, LayoutAnimation, Platform, UIManager 
+} from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { DashboardStackParamList } from '../../Navigation/TabNavigator'; // On récupère le typage du Stack
+
+// 1. Définition de l'interface pour un Ouvrier
+interface Worker {
+  id: number;
+  specialite: string;
+  name: string;
+  email: string;
+  dateDebut: string;
+  status: 'En attente' | 'Complete' | 'Annulé' | 'En cours'; // Union type pour la sécurité
+  initials: string;
+  color: string;
+}
+
+interface StatusStyle {
+  bg: string;
+  text: string;
+}
+
+// Configuration pour Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const defaultWorkers: Worker[] = [
+  { id: 1, specialite: 'Menuisier',  name: 'Arrora Gaur',     email: 'arroragaur@gmail.com',     dateDebut: '12 Dec, 2025', status: 'En attente', initials: 'AG', color: '#f97316' },
+  { id: 2, specialite: 'Menuisier',  name: 'James Mullican',  email: 'jamesmullican@gmail.com',  dateDebut: '10 Dec, 2025', status: 'En attente', initials: 'JM', color: '#6366f1' },
+  { id: 3, specialite: 'Architecte', name: 'Robert Bacins',   email: 'robertbacins@gmail.com',   dateDebut: '09 Dec, 2025', status: 'Complete',   initials: 'RB', color: '#10b981' },
+  { id: 4, specialite: 'Carreleur',  name: 'Bethany Jackson', email: 'bethanyjackson@gmail.com', dateDebut: '09 Dec, 2025', status: 'Annulé',     initials: 'BJ', color: '#f43f5e' },
+  { id: 5, specialite: 'Carreleur',  name: 'Anne Jacob',      email: 'annejacob@gmail.com',      dateDebut: '10 Dec, 2025', status: 'Complete',   initials: 'AJ', color: '#8b5cf6' },
+  { id: 7, specialite: 'Maçon',      name: 'James Mullican',  email: 'jamesmullican@gmail.com',  dateDebut: '10 Dec, 2025', status: 'En cours',   initials: 'JM', color: '#6366f1' },
+  { id: 8, specialite: 'Maçon',      name: 'Jhon Deo',        email: 'jhondeo32@gmail.com',      dateDebut: '10 Dec, 2025', status: 'En cours',   initials: 'JD', color: '#0ea5e9' },
+];
+
+// 2. Typage des Props
+type Props = NativeStackScreenProps<DashboardStackParamList, 'TeamList'>;
+
+const TeamListPage: React.FC<Props> = ({ navigation, route }) => {
+  // On récupère les paramètres de navigation (chantierName et siteId)
+  const { chantierName } = route.params; 
+  
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [expandedWorkerId, setExpandedWorkerId] = useState<number | null>(null);
+
+  const toggleExpand = (id: number) => {
+    LayoutAnimation.configureNext({
+      duration: 300,
+      create: { type: 'easeInEaseOut', property: 'opacity' },
+      update: { type: 'easeInEaseOut' },
+    });
+    setExpandedWorkerId(expandedWorkerId === id ? null : id);
+  };
+
+  const filteredWorkers = defaultWorkers.filter(worker =>
+    worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    worker.specialite.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // 3. Typage de la fonction de style
+  const getStatusStyle = (status: Worker['status']): StatusStyle => {
+    switch (status) {
+      case 'Complete': return { bg: '#e8f5e9', text: '#2e7d32' };
+      case 'En attente': return { bg: '#fff3e0', text: '#ef6c00' };
+      case 'Annulé': return { bg: '#ffebee', text: '#c62828' };
+      case 'En cours': return { bg: '#f5f5f5', text: '#616161' };
+      default: return { bg: '#e5e7eb', text: '#374151' };
+    }
+  };
+
+  const renderWorker = ({ item }: { item: Worker }) => {
+    const isExpanded = expandedWorkerId === item.id;
+    const statusStyle = getStatusStyle(item.status);
+
+    return (
+      <TouchableOpacity 
+        style={[styles.workerCard, isExpanded && styles.workerCardExpanded]} 
+        onPress={() => toggleExpand(item.id)}
+        activeOpacity={1}
+      >
+        <View style={styles.mainRow}>
+          <View style={[styles.avatar, { backgroundColor: item.color }]}>
+            <Text style={styles.avatarText}>{item.initials}</Text>
+          </View>
+          <View style={styles.workerInfo}>
+            <Text style={styles.workerName}>{item.name}</Text>
+            <Text style={styles.workerSpecialty}>{item.specialite}</Text>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
+            <Text style={[styles.statusText, { color: statusStyle.text }]}>{item.status}</Text>
+          </View>
+        </View>
+
+        {isExpanded && (
+          <View style={styles.detailsSection}>
+            <View style={styles.divider} />
+            <div style={styles.detailRow}>
+              <MaterialCommunityIcons name="email-outline" size={16} color="#555" />
+              <Text style={styles.detailText}>{item.email}</Text>
+            </div>
+            <div style={styles.detailRow}>
+              <MaterialCommunityIcons name="calendar-range" size={16} color="#555" />
+              <Text style={styles.detailText}>Début : {item.dateDebut}</Text>
+            </div>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <MaterialCommunityIcons name="chevron-left" size={28} color="#c2410c" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Équipe / {chantierName}</Text>
+      </View>
+
+      <View style={styles.searchSection}>
+        <View style={styles.searchBar}>
+          <MaterialCommunityIcons name="magnify" size={20} color="#999" />
+          <TextInput 
+            placeholder="Chercher un ouvrier..." 
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <TouchableOpacity style={styles.addButton}>
+          <Text style={styles.addButtonText}>+ Nouveau</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={filteredWorkers}
+        keyExtractor={item => item.id.toString()}
+        renderItem={renderWorker}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
+  );
+};
+
+// ... Styles identiques à ta version JS
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 15, backgroundColor: '#f3f4f6' },
+  backBtn: { marginRight: 10 },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#111827' },
+  searchSection: { flexDirection: 'row', alignItems: 'center', padding: 15, backgroundColor: '#f3f4f6' },
+  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', height: 40, marginRight: 10, paddingHorizontal: 12, backgroundColor: '#F3F4F6', borderRadius: 20 },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 14, color: '#111827' },
+  addButton: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: 20, backgroundColor: '#c2410c' },
+  addButtonText: { fontSize: 13, fontWeight: 'bold', color: '#FFF' },
+  listContent: { padding: 15, paddingBottom: 100 },
+  workerCard: { backgroundColor: '#ffffff', borderRadius: 16, marginBottom: 10, borderWidth: 1, borderColor: '#f3f4f6', overflow: 'hidden', elevation: 2 },
+  workerCardExpanded: { backgroundColor: '#ffffff', borderColor: '#c2410c', elevation: 4 },
+  mainRow: { flexDirection: 'row', alignItems: 'center', padding: 15 },
+  avatar: { width: 45, height: 45, borderRadius: 23, justifyContent: 'center', alignItems: 'center' },
+  avatarText: { fontSize: 16, fontWeight: 'bold', color: '#FFF' },
+  workerInfo: { flex: 1, marginLeft: 15 },
+  workerName: { fontSize: 15, fontWeight: 'bold', color: '#111827' },
+  workerSpecialty: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
+  statusText: { fontSize: 11, fontWeight: 'bold' },
+  detailsSection: { paddingHorizontal: 15, paddingBottom: 15, backgroundColor: '#fafafa' },
+  divider: { height: 1, marginBottom: 12, backgroundColor: '#EEE' },
+  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  detailText: { fontSize: 13, color: '#444', marginLeft: 10 },
+});
+
+export default TeamListPage;

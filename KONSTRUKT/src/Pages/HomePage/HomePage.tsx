@@ -1,0 +1,104 @@
+import React from 'react';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { TabParamList } from '../../Navigation/TabNavigator'; // On récupère le typage des onglets
+import MenuCard from '../../Components/MenuCard';
+
+// 1. Interface pour les éléments du menu
+interface MenuItem {
+  id: string;
+  title: string;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap; // Typage strict des icônes
+  color: string;
+}
+
+// 2. Typage des Props (en supposant que HomePage fait partie du TabNavigator ou y accède)
+type Props = BottomTabScreenProps<TabParamList>;
+
+const HomePage: React.FC<Props> = ({ navigation }) => {
+  
+  const menuItems: MenuItem[] = [
+    { id: 'dash', title: 'Dashboard', icon: 'view-dashboard', color: '#c2410c' },
+    { id: 'cmd', title: 'Commandes', icon: 'cart', color: '#374151' },
+    { id: 'met', title: 'Météo & Alertes', icon: 'weather-sunny-alert', color: '#374151' },
+    { id: 'cha', title: 'Chantiers', icon: 'office-building', color: '#374151' },
+    { id: 'pla', title: 'Plannings', icon: 'calendar-clock', color: '#374151' },
+    { id: 'set', title: 'Réglages', icon: 'cog', color: '#374151' },
+  ];
+
+  const handlePress = (id: string) => {
+    if (id === 'dash') {
+      // TypeScript vérifie que 'Dashboard' existe bien dans TabParamList
+      navigation.navigate('Dashboard');
+    } else {
+      console.log(`Bientôt disponible : ${id}`);
+    }
+  };
+
+  return (
+    <SafeAreaProvider style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        
+        <View style={styles.header}>
+          <Text style={styles.welcomeText}>Bonjour,</Text>
+          <Text style={styles.brandText}>Konstrukt</Text>
+        </View>
+
+        <Text style={styles.sectionTitle}>Menu principal</Text>
+
+        <View style={styles.grid}>
+          {menuItems.map((item) => (
+            <MenuCard 
+              key={item.id}
+              title={item.title}
+              icon={item.icon}
+              color={item.color}
+              // Cast temporaire si MenuCard n'est pas encore en .tsx
+              onPress={() => handlePress(item.id)}
+            />
+          ))}
+        </View>
+
+      </ScrollView>
+    </SafeAreaProvider>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+  },
+  scrollContainer: {
+    padding: 20,
+  },
+  header: {
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  welcomeText: {
+    fontSize: 18,
+    color: '#6b7280',
+  },
+  brandText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#9ca3af',
+    letterSpacing: 1.2,
+    marginBottom: 20,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+});
+
+export default HomePage;
