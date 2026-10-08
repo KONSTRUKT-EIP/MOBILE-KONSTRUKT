@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import api from '../../API/Api';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator'; // On récupère le typage du Stack
 
 // 1. Définition de l'interface pour un Chantier
@@ -12,20 +13,21 @@ interface Worksite {
   location: string;
 }
 
-const initialChantiers: Worksite[] = [
-  { id: "1", name: "Tour Horizon",       location: "Paris, 75008" },
-  { id: "2", name: "Résidence Les Pins", location: "Lyon, 69003" },
-  { id: "3", name: "Pont Sud",           location: "Marseille, 13002" },
-  { id: "4", name: "Centre Commercial",  location: "Bordeaux, 33000" },
-  { id: "5", name: "Immeuble Lumière",   location: "Nantes, 44000" },
-  { id: "6", name: "Stade Municipal",    location: "Toulouse, 31000" },
-];
+interface SiteApiResponse {
+  id: string;
+  name: string;
+  city: string;
+  postalCode: string;
+}
 
 // 2. Typage des Props du composant pour la navigation
 type Props = NativeStackScreenProps<DashboardStackParamList, 'DashboardList'>;
 
 const DashboardList: React.FC<Props> = ({ navigation }) => {
   const [userName, setUserName] = useState<string>('Utilisateur');
+  const [chantiers, setChantiers] = useState<Worksite[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -39,6 +41,34 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
     fetchUserData();
   }, []);
 
+  const fetchSites = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await api.get<SiteApiResponse[]>('/sites');
+      setChantiers(
+        response.data.map(site => ({
+          id: site.id,
+          name: site.name,
+          location: `${site.city}, ${site.postalCode}`,
+        }))
+      );
+    } catch (err: any) {
+      console.error('Erreur API Sites:', err);
+      if (err.response?.status === 403) {
+        setError("Votre rôle ne permet pas encore d'accéder à la liste des chantiers.");
+      } else {
+        setError('Impossible de charger vos chantiers.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSites();
+  }, [fetchSites]);
+
   const renderHeader = () => (
     <View style={styles.headerContainer}>
       <Text style={styles.welcomeText}>Bonjour, {userName}</Text>
@@ -46,7 +76,7 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
       <View style={styles.sectionRow}>
         <Text style={styles.sectionTitle}>Mes Chantiers Actifs</Text>
         <View style={styles.countBadge}>
-          <Text style={styles.countBadgeText}>{initialChantiers.length}</Text>
+          <Text style={styles.countBadgeText}>{chantiers.length}</Text>
         </View>
       </View>
     </View>
@@ -81,14 +111,27 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
         <Text style={styles.brandText}>KONSTRUKT</Text>
         <Text style={styles.bannerTitle}>Mes Chantiers</Text>
       </View>
-      <FlatList
-        data={initialChantiers}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color="#4f46e5" />
+        </View>
+      ) : error ? (
+        <View style={styles.loader}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={chantiers}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text style={styles.errorText}>Aucun chantier pour le moment.</Text>
+          }
+        />
+      )}
     </View>
   );
 };
@@ -96,6 +139,8 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
 // ... Les styles restent identiques
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
+  loader: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  errorText: { color: '#6b7280', fontSize: 14, textAlign: 'center' },
   banner: { backgroundColor: '#4f46e5', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 },
   brandText: { fontSize: 10, fontWeight: 'bold', letterSpacing: 2, color: '#c7d2fe', marginBottom: 4 },
   bannerTitle: { fontSize: 26, fontWeight: 'bold', color: '#ffffff' },
