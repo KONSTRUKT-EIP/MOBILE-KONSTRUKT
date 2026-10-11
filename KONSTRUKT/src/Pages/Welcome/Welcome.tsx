@@ -13,22 +13,15 @@ const WelcomePage: React.FC<Props> = ({ navigation }) => {
       <View style={styles.card}>
         <Text style={styles.title}>Bienvenue sur KONSTRUKT</Text>
         <Text style={styles.subDescription}>
-          Connectez-vous ou créez un compte pour commencer à explorer votre tableau de bord !
+          Connectez-vous pour commencer à explorer votre tableau de bord !
         </Text>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.signInButton}
             onPress={() => navigation.navigate('Login')} // Navigation typée
           >
             <Text style={styles.signInText}>Se connecter</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.signUpButton}
-            onPress={() => navigation.navigate('Register')} // Navigation typée
-          >
-            <Text style={styles.signUpText}>S'inscrire</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -45,10 +38,8 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: '900', color: '#c2410c', textAlign: 'center', marginBottom: 16 },
   subDescription: { fontSize: 15, color: '#6b7280', textAlign: 'center', fontWeight: '500', lineHeight: 22, marginBottom: 32 },
   buttonContainer: { flexDirection: 'column', justifyContent: 'center', width: '100%' },
-  signInButton: { backgroundColor: '#c2410c', paddingVertical: 15, borderRadius: 999, width: '100%', marginBottom: 12, alignItems: 'center' },
+  signInButton: { backgroundColor: '#c2410c', paddingVertical: 15, borderRadius: 999, width: '100%', alignItems: 'center' },
   signInText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
-  signUpButton: { backgroundColor: '#ffffff', borderWidth: 2, borderColor: '#c2410c', paddingVertical: 15, borderRadius: 999, width: '100%', alignItems: 'center' },
-  signUpText: { color: '#c2410c', fontSize: 16, fontWeight: 'bold' },
   footerText: { position: 'absolute', bottom: 30, color: '#9ca3af', fontSize: 12 },
 });
 
