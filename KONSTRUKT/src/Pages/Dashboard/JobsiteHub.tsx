@@ -88,10 +88,10 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
             {teamStats.map((item) => (
               <View key={item.id} style={styles.statWrapper}>
                 <StatCircle percentage={item.percentage} color={item.color} />
-                <div className="statTextContainer" style={styles.statTextContainer}>
+                <View style={styles.statTextContainer}>
                     <Text style={styles.statLabelText}>{item.label}</Text>
                     <Text style={styles.statSubText}>{item.sub}</Text>
-                </div>
+                </View>
               </View>
             ))}
           </ScrollView>

@@ -100,14 +100,14 @@ const TeamListPage: React.FC<Props> = ({ navigation, route }) => {
         {isExpanded && (
           <View style={styles.detailsSection}>
             <View style={styles.divider} />
-            <div style={styles.detailRow}>
+            <View style={styles.detailRow}>
               <MaterialCommunityIcons name="email-outline" size={16} color="#555" />
               <Text style={styles.detailText}>{item.email}</Text>
-            </div>
-            <div style={styles.detailRow}>
+            </View>
+            <View style={styles.detailRow}>
               <MaterialCommunityIcons name="calendar-range" size={16} color="#555" />
               <Text style={styles.detailText}>Début : {item.dateDebut}</Text>
-            </div>
+            </View>
           </View>
         )}
       </TouchableOpacity>
