@@ -1,5 +1,5 @@
 import api from '../API/Api';
-import { AuthResponse, User } from '../Types/Auth';
+import { AccessibleSite, AuthResponse, User } from '../Types/Auth';
 
 const authService = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
@@ -9,6 +9,11 @@ const authService = {
 
   getCurrentUser: async (): Promise<User | null> => {
     const response = await api.get<User | null>('/auth');
+    return response.data || null;
+  },
+
+  getAccessibleSites: async (): Promise<AccessibleSite[]> => {
+    const response = await api.get<AccessibleSite[]>('/auth/me/sites');
     return response.data;
   },
 
