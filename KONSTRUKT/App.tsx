@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginPage from './src/Pages/Auth/Login/Login';
 import TabNavigator from './src/Navigation/TabNavigator';
 import WelcomePage from './src/Pages/Welcome/Welcome';
+import { navigationRef } from './src/Navigation/navigationRef';
 
 // 1. Définition des routes et de leurs paramètres
 export type RootStackParamList = {
@@ -17,7 +18,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Welcome" component={WelcomePage} />
         <Stack.Screen name="Login" component={LoginPage} />

@@ -26,20 +26,27 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
     setError('');
     setLoading(true);
     try {
-      const response = await authService.login(email, password);
-      console.log('Succès !', response);
-      
-      const token = response.access_token;
-      const firstName = response.user?.firstName || "Utilisateur";
+      const { access_token, refresh_token } = await authService.login(email, password);
 
-      if (token) {
-        await AsyncStorage.setItem('userToken', token);
-        await AsyncStorage.setItem('userFirstName', firstName);
-        console.log('Token et prénom sauvegardés');
-        navigation.navigate('Main'); // Redirection vers le TabNavigator
-      } else {
+      if (!access_token || !refresh_token) {
         setError("Le serveur n'a pas renvoyé de jeton d'accès.");
+        return;
       }
+
+      await AsyncStorage.multiSet([
+        ['userToken', access_token],
+        ['refreshToken', refresh_token],
+      ]);
+
+      let firstName = 'Utilisateur';
+      try {
+        const me = await authService.getCurrentUser();
+        if (me?.firstName) firstName = me.firstName;
+      } catch {
+        // Le prénom est cosmétique : on ne bloque pas la connexion.
+      }
+      await AsyncStorage.setItem('userFirstName', firstName);
+      navigation.navigate('Main');
 
     } catch (err: any) {
       const backendMessage = err.response?.data?.message;

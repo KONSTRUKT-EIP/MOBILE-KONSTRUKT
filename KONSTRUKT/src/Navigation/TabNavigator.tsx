@@ -5,6 +5,7 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-na
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList } from '../../App'; // On importe le type défini dans App.tsx
+import authService from '../Services/authService';
 
 // Import des pages
 import DashboardList from '../Pages/Dashboard/DashboardList';
@@ -66,8 +67,13 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ navigation }) => {
       { text: "Annuler", style: "cancel" },
       { 
         text: "Se déconnecter", 
-        onPress: async () => { 
-          await AsyncStorage.clear(); 
+        onPress: async () => {
+          try {
+            await authService.logout();
+          } catch {
+            // Déconnexion locale même si le serveur est injoignable.
+          }
+          await AsyncStorage.clear();
           navigation.replace('Login'); // Maintenant typé grâce à RootStackParamList
         }, 
         style: "destructive" 
