@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '../../API/Api';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator';
 
@@ -37,6 +38,7 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'Attendance'>;
 
 const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
   const { chantierName, siteId } = route.params;
+  const insets = useSafeAreaInsets();
 
   const [workers, setWorkers] = useState<AttendanceWorker[]>([]);
   const [days, setDays] = useState<string[]>([]);
@@ -136,9 +138,8 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
     );
   };
 
-  // Calcul dynamique des compteurs typés
-  const counts = Object.values(attendanceData).reduce((acc: Record<string, number>, current) => {
-    const status = current[selectedDayIndex] || 'en-attente';
+  const counts = workers.reduce<Record<string, number>>((acc, worker) => {
+    const status = attendanceData[worker.id]?.[selectedDayIndex] || 'en-attente';
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
@@ -178,13 +179,13 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
         data={workers}
         keyExtractor={item => item.id}
         renderItem={renderAttendanceCard}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: 100 + insets.bottom }]}
         ListEmptyComponent={
           <Text style={styles.emptyText}>Aucun membre d'équipe sur ce chantier.</Text>
         }
       />
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: 15 + insets.bottom }]}>
         {(Object.entries(statusConfig) as [AttendanceStatus, any][]).map(([key, config]) => (
           <View key={key} style={styles.summaryItem}>
             <View style={[styles.dot, { backgroundColor: config.bg }]} />
