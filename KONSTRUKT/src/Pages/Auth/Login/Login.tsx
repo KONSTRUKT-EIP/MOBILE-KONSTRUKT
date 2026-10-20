@@ -103,16 +103,6 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
           <TouchableOpacity style={styles.forgotPasswordContainer}>
             <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
           </TouchableOpacity>
-
-          <View style={styles.registerContainer}>
-            <Text style={styles.noAccountText}>Pas de compte ? </Text>
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('Register')}
-              style={styles.linkTouchZone}
-            >
-              <Text style={styles.registerText}>S'inscrire</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -134,10 +124,6 @@ const styles = StyleSheet.create({
   errorText: { color: '#ef4444', fontSize: 13, fontWeight: '500', marginBottom: 12, textAlign: 'center' },
   forgotPasswordContainer: { marginTop: 14, alignItems: 'center' },
   forgotPasswordText: { color: '#6b7280', fontSize: 14 },
-  registerContainer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 24 },
-  noAccountText: { color: '#6b7280', fontSize: 14 },
-  registerText: { color: '#c2410c', fontSize: 14, fontWeight: 'bold', marginLeft: 4 },
-  linkTouchZone: { paddingVertical: 5, paddingHorizontal: 2 },
 });
 
 export default LoginPage;
