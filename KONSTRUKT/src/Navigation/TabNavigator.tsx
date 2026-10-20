@@ -71,7 +71,6 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ navigation }) => {
           try {
             await authService.logout();
           } catch {
-            // Déconnexion locale même si le serveur est injoignable.
           }
           await AsyncStorage.clear();
           navigation.replace('Login'); // Maintenant typé grâce à RootStackParamList

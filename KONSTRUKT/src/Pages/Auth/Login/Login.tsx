@@ -43,7 +43,6 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
         const me = await authService.getCurrentUser();
         if (me?.firstName) firstName = me.firstName;
       } catch {
-        // Le prénom est cosmétique : on ne bloque pas la connexion.
       }
       await AsyncStorage.setItem('userFirstName', firstName);
       navigation.navigate('Main');

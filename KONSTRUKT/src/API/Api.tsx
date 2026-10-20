@@ -16,7 +16,6 @@ export const setSessionExpiredHandler = (handler: (() => void) | null) => {
   onSessionExpired = handler;
 };
 
-// Le backend fait tourner le refresh token à chaque appel : un seul refresh à la fois.
 let refreshPromise: Promise<void> | null = null;
 
 const refreshSession = async (): Promise<void> => {
@@ -63,7 +62,6 @@ api.interceptors.response.use(
       refreshPromise = refreshPromise ?? refreshSession().finally(() => { refreshPromise = null; });
       await refreshPromise;
     } catch (refreshError) {
-      // Panne réseau : on garde la session, seul un refus du serveur la termine.
       if (axios.isAxiosError(refreshError) && !refreshError.response) {
         return Promise.reject(error);
       }
