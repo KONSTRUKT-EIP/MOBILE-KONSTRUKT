@@ -6,11 +6,13 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import authService from '../../../Services/authService';
+import { useSession } from '../../../Context/SessionContext';
 import { RootStackParamList } from '../../../../App'; // Vérifie que le chemin remonte bien à la racine
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginPage: React.FC<Props> = ({ navigation }) => {
+  const { loadSession } = useSession();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -38,13 +40,8 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
         ['refreshToken', refresh_token],
       ]);
 
-      let firstName = 'Utilisateur';
-      try {
-        const me = await authService.getCurrentUser();
-        if (me?.firstName) firstName = me.firstName;
-      } catch {
-      }
-      await AsyncStorage.setItem('userFirstName', firstName);
+      const currentUser = await loadSession();
+      await AsyncStorage.setItem('userFirstName', currentUser?.firstName || 'Utilisateur');
       navigation.navigate('Main');
 
     } catch (err: any) {
