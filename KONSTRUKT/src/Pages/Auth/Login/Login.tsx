@@ -19,14 +19,15 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
   const isFormEmpty = email.trim() === '' || password.trim() === '';
 
   const handleLogin = async () => {
-    if (!email.includes('@')) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail.includes('@')) {
       setError("L'adresse email n'est pas valide.");
       return;
     }
     setError('');
     setLoading(true);
     try {
-      const { access_token, refresh_token } = await authService.login(email, password);
+      const { access_token, refresh_token } = await authService.login(cleanEmail, password);
 
       if (!access_token || !refresh_token) {
         setError("Le serveur n'a pas renvoyé de jeton d'accès.");
