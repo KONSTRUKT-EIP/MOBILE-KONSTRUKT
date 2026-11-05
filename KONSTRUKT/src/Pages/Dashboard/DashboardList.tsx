@@ -18,7 +18,8 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'DashboardList'>;
 
 const DashboardList: React.FC<Props> = ({ navigation }) => {
   const [userName, setUserName] = useState<string>('Utilisateur');
-  const { sites, loaded, error, loadSession } = useSession();
+  const { sites, loaded, error, loadSession, selectSite } = useSession();
+  const hasSingleSite = loaded && sites.length === 1;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -35,6 +36,13 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
   useEffect(() => {
     if (!loaded) loadSession();
   }, [loaded, loadSession]);
+
+  useEffect(() => {
+    if (!hasSingleSite) return;
+    const [site] = sites;
+    selectSite(site.id);
+    navigation.replace('JobsiteHub', { chantierName: site.name, siteId: site.id });
+  }, [hasSingleSite, sites, selectSite, navigation]);
 
   const chantiers: Worksite[] = sites.map(site => ({
     id: site.id,
@@ -84,7 +92,7 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
         <Text style={styles.brandText}>KONSTRUKT</Text>
         <Text style={styles.bannerTitle}>Mes Chantiers</Text>
       </View>
-      {!loaded ? (
+      {!loaded || hasSingleSite ? (
         <View style={styles.loader}>
           <ActivityIndicator size="large" color="#4f46e5" />
         </View>

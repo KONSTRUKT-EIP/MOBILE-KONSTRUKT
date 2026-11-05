@@ -76,9 +76,11 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <MaterialCommunityIcons name="chevron-left" size={32} color="#c2410c" />
-          </TouchableOpacity>
+          {navigation.getState().routes.length > 1 && (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <MaterialCommunityIcons name="chevron-left" size={32} color="#c2410c" />
+            </TouchableOpacity>
+          )}
           <Text style={styles.title}>{chantierName}</Text>
         </View>
     
