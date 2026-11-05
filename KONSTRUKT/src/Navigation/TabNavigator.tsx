@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList } from '../../App'; // On importe le type défini dans App.tsx
 import authService from '../Services/authService';
+import { useSession } from '../Context/SessionContext';
 
 // Import des pages
 import DashboardList from '../Pages/Dashboard/DashboardList';
@@ -62,6 +63,7 @@ type TabNavigatorProps = {
 };
 
 const TabNavigator: React.FC<TabNavigatorProps> = ({ navigation }) => {
+  const { clearSession } = useSession();
   const handleLogout = () => {
     Alert.alert("Déconnexion", "Voulez-vous vraiment vous déconnecter ?", [
       { text: "Annuler", style: "cancel" },
@@ -73,6 +75,7 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ navigation }) => {
           } catch {
           }
           await AsyncStorage.clear();
+          await clearSession();
           navigation.replace('Login'); // Maintenant typé grâce à RootStackParamList
         }, 
         style: "destructive" 

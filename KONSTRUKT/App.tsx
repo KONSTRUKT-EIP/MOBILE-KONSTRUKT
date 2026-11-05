@@ -6,6 +6,7 @@ import LoginPage from './src/Pages/Auth/Login/Login';
 import TabNavigator from './src/Navigation/TabNavigator';
 import WelcomePage from './src/Pages/Welcome/Welcome';
 import { navigationRef } from './src/Navigation/navigationRef';
+import { SessionProvider } from './src/Context/SessionContext';
 
 // 1. Définition des routes et de leurs paramètres
 export type RootStackParamList = {
@@ -18,6 +19,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
+    <SessionProvider>
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Welcome" component={WelcomePage} />
@@ -25,5 +27,6 @@ export default function App() {
         <Stack.Screen name="Main" component={TabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
+    </SessionProvider>
   );
 }

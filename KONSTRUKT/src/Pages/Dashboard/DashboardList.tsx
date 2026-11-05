@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import api from '../../API/Api';
+import { useSession } from '../../Context/SessionContext';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator'; // On récupère le typage du Stack
 
 // 1. Définition de l'interface pour un Chantier
@@ -13,21 +13,12 @@ interface Worksite {
   location: string;
 }
 
-interface SiteApiResponse {
-  id: string;
-  name: string;
-  city: string;
-  postalCode: string;
-}
-
 // 2. Typage des Props du composant pour la navigation
 type Props = NativeStackScreenProps<DashboardStackParamList, 'DashboardList'>;
 
 const DashboardList: React.FC<Props> = ({ navigation }) => {
   const [userName, setUserName] = useState<string>('Utilisateur');
-  const [chantiers, setChantiers] = useState<Worksite[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
+  const { sites, loaded, error, loadSession } = useSession();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -41,33 +32,15 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
     fetchUserData();
   }, []);
 
-  const fetchSites = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const response = await api.get<SiteApiResponse[]>('/sites');
-      setChantiers(
-        response.data.map(site => ({
-          id: site.id,
-          name: site.name,
-          location: `${site.city}, ${site.postalCode}`,
-        }))
-      );
-    } catch (err: any) {
-      console.error('Erreur API Sites:', err);
-      if (err.response?.status === 403) {
-        setError("Votre rôle ne permet pas encore d'accéder à la liste des chantiers.");
-      } else {
-        setError('Impossible de charger vos chantiers.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchSites();
-  }, [fetchSites]);
+    if (!loaded) loadSession();
+  }, [loaded, loadSession]);
+
+  const chantiers: Worksite[] = sites.map(site => ({
+    id: site.id,
+    name: site.name,
+    location: `${site.city}, ${site.postalCode}`,
+  }));
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -111,7 +84,7 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
         <Text style={styles.brandText}>KONSTRUKT</Text>
         <Text style={styles.bannerTitle}>Mes Chantiers</Text>
       </View>
-      {loading ? (
+      {!loaded ? (
         <View style={styles.loader}>
           <ActivityIndicator size="large" color="#4f46e5" />
         </View>
