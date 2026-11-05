@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import api from '../../API/Api';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator';
 
@@ -38,7 +38,7 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'Attendance'>;
 
 const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
   const { chantierName, siteId } = route.params;
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const [workers, setWorkers] = useState<AttendanceWorker[]>([]);
   const [days, setDays] = useState<string[]>([]);
@@ -179,13 +179,13 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
         data={workers}
         keyExtractor={item => item.id}
         renderItem={renderAttendanceCard}
-        contentContainerStyle={[styles.list, { paddingBottom: 100 + insets.bottom }]}
+        contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 80 }]}
         ListEmptyComponent={
           <Text style={styles.emptyText}>Aucun membre d'équipe sur ce chantier.</Text>
         }
       />
 
-      <View style={[styles.footer, { paddingBottom: 15 + insets.bottom }]}>
+      <View style={[styles.footer, { bottom: tabBarHeight }]}>
         {(Object.entries(statusConfig) as [AttendanceStatus, any][]).map(([key, config]) => (
           <View key={key} style={styles.summaryItem}>
             <View style={[styles.dot, { backgroundColor: config.bg }]} />
