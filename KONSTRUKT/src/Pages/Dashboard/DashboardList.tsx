@@ -68,7 +68,10 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
     <TouchableOpacity 
       style={styles.card} 
       // MISE À JOUR : On passe siteId car il est requis par le DashboardStackParamList
-      onPress={() => navigation.navigate('JobsiteHub', { chantierName: item.name, siteId: item.id })}
+      onPress={() => {
+        selectSite(item.id);
+        navigation.navigate('JobsiteHub', { chantierName: item.name, siteId: item.id });
+      }}
     >
       <View style={styles.cardHeader}>
         <View style={styles.iconBox}>
