@@ -2,13 +2,17 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import authService from '../Services/authService';
 import { AccessibleSite, User } from '../Types/Auth';
+import { decodeTokenPayload } from '../Utils/jwt';
 
 const SELECTED_SITE_KEY = 'selectedSiteId';
+const SITE_CREATOR_ROLES = ['ADMIN', 'CHEF_PROJET'];
 
 interface SessionContextValue {
   user: User | null;
   sites: AccessibleSite[];
   selectedSite: AccessibleSite | null;
+  organizationId: string | null;
+  canCreateSite: boolean;
   loaded: boolean;
   error: string;
   loadSession: () => Promise<User | null>;
@@ -22,17 +26,23 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [user, setUser] = useState<User | null>(null);
   const [sites, setSites] = useState<AccessibleSite[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
   const loadSession = useCallback(async (): Promise<User | null> => {
     setError('');
     try {
-      const [currentUser, accessibleSites, storedSiteId] = await Promise.all([
+      const [currentUser, accessibleSites, storedSiteId, token] = await Promise.all([
         authService.getCurrentUser(),
         authService.getAccessibleSites(),
         AsyncStorage.getItem(SELECTED_SITE_KEY),
+        AsyncStorage.getItem('userToken'),
       ]);
+      const payload = decodeTokenPayload(token);
+      setOrganizationId(payload?.organizationId ?? null);
+      setRole(payload?.role ?? null);
       setUser(currentUser);
       setSites(accessibleSites);
       setSelectedSiteId(
@@ -61,6 +71,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setUser(null);
     setSites([]);
     setSelectedSiteId(null);
+    setOrganizationId(null);
+    setRole(null);
     setLoaded(false);
     setError('');
     await AsyncStorage.removeItem(SELECTED_SITE_KEY);
@@ -71,9 +83,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [sites, selectedSiteId]
   );
 
+  const canCreateSite = role !== null && SITE_CREATOR_ROLES.includes(role);
+
   const value = useMemo(
-    () => ({ user, sites, selectedSite, loaded, error, loadSession, selectSite, clearSession }),
-    [user, sites, selectedSite, loaded, error, loadSession, selectSite, clearSession]
+    () => ({ user, sites, selectedSite, organizationId, canCreateSite, loaded, error, loadSession, selectSite, clearSession }),
+    [user, sites, selectedSite, organizationId, canCreateSite, loaded, error, loadSession, selectSite, clearSession]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

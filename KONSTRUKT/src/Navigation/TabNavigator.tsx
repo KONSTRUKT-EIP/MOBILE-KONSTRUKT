@@ -18,11 +18,13 @@ import WeatherPage from '../Pages/Weather/Weather';
 import TeamListPage from '../Pages/Dashboard/TeamList';
 import AttendancePage from '../Pages/Dashboard/AttendancePage';
 import JobsiteHub from '../Pages/Dashboard/JobsiteHub';
+import CreateSite from '../Pages/Dashboard/CreateSite';
 import TradeDashboard from '../Pages/Dashboard/TradeDashboard';
 
 // 1. Types pour le Stack du Dashboard
 export type DashboardStackParamList = {
   DashboardList: undefined;
+  CreateSite: undefined;
   JobsiteHub: { chantierName: string; siteId: string };
   TradeDashboard: { chantierName: string; category: string };
   DashboardDetail: { chantierName: string; siteId: string };
@@ -49,6 +51,7 @@ function DashboardStackScreen() {
       {/* On utilise 'as any' temporairement pour les composants non encore convertis en .tsx */}
       <DashboardStack.Screen name="DashboardList" component={DashboardList as any} />
       <DashboardStack.Screen name="JobsiteHub" component={JobsiteHub as any} />
+      <DashboardStack.Screen name="CreateSite" component={CreateSite as any} />
       <DashboardStack.Screen name="TradeDashboard" component={TradeDashboard as any} />
       <DashboardStack.Screen name="DashboardDetail" component={DashboardPage as any} />
       <DashboardStack.Screen name="TeamList" component={TeamListPage as any} />
