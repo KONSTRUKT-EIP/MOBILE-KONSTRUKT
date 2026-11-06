@@ -3,33 +3,44 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../../Navigation/TabNavigator'; // Import du type des onglets
+import { useSession } from '../../Context/SessionContext';
 
 // 1. Typage des Props pour l'onglet Chantiers
 type Props = BottomTabScreenProps<TabParamList, 'Chantiers'>;
 
-const WorksitesPage: React.FC<Props> = () => (
-  <View style={styles.container}>
-    {/* Banner orange assortie au frontend /worksites */}
-    <View style={styles.banner}>
-      <Text style={styles.brandText}>KONSTRUKT</Text>
-      <Text style={styles.bannerTitle}>Chantiers</Text>
-      <Text style={styles.bannerSub}>Consultez et gérez vos chantiers</Text>
-    </View>
+const WorksitesPage: React.FC<Props> = ({ navigation }) => {
+  const { canCreateSite } = useSession();
 
-    <ScrollView contentContainerStyle={styles.content}>
-      <TouchableOpacity style={styles.createBtn} activeOpacity={0.85}>
-        <MaterialCommunityIcons name="plus" size={18} color="#ffffff" />
-        <Text style={styles.createBtnText}>Créer un chantier</Text>
-      </TouchableOpacity>
-
-      <View style={styles.emptyCard}>
-        <MaterialCommunityIcons name="office-building-outline" size={56} color="#e5e7eb" />
-        <Text style={styles.emptyTitle}>Aucun chantier</Text>
-        <Text style={styles.emptyText}>Cette fonctionnalité sera bientôt disponible.</Text>
+  return (
+    <View style={styles.container}>
+      {/* Banner orange assortie au frontend /worksites */}
+      <View style={styles.banner}>
+        <Text style={styles.brandText}>KONSTRUKT</Text>
+        <Text style={styles.bannerTitle}>Chantiers</Text>
+        <Text style={styles.bannerSub}>Consultez et gérez vos chantiers</Text>
       </View>
-    </ScrollView>
-  </View>
-);
+
+      <ScrollView contentContainerStyle={styles.content}>
+        {canCreateSite && (
+          <TouchableOpacity
+            style={styles.createBtn}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('Dashboard', { screen: 'CreateSite' })}
+          >
+            <MaterialCommunityIcons name="plus" size={18} color="#ffffff" />
+            <Text style={styles.createBtnText}>Créer un chantier</Text>
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.emptyCard}>
+          <MaterialCommunityIcons name="office-building-outline" size={56} color="#e5e7eb" />
+          <Text style={styles.emptyTitle}>Aucun chantier</Text>
+          <Text style={styles.emptyText}>Cette fonctionnalité sera bientôt disponible.</Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
 
 // ... Styles identiques à la version JS
 const styles = StyleSheet.create({

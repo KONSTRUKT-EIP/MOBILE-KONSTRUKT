@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavigatorScreenParams } from '@react-navigation/native';
 import { TouchableOpacity, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -34,7 +35,7 @@ export type DashboardStackParamList = {
 
 // 2. Types pour le TabNavigator
 export type TabParamList = {
-  Dashboard: undefined;
+  Dashboard: NavigatorScreenParams<DashboardStackParamList> | undefined;
   Commandes: undefined;
   Chantiers: undefined;
   Planning: undefined;
