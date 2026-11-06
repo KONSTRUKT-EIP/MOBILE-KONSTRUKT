@@ -4,6 +4,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import api from '../../API/Api';
 import StatCircle from '../../Components/Dashboard/StatCircle';
+import SiteSwitcher from '../../Components/SiteSwitcher';
+import { useSession } from '../../Context/SessionContext';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator'; // Import du typage global
 
 // 1. Définition des interfaces pour les données de l'API
@@ -32,6 +34,9 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'JobsiteHub'>;
 const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
   // On récupère les paramètres typés (chantierName et siteId)
   const { chantierName, siteId } = route.params;
+  const { sites, selectSite, canCreateSite } = useSession();
+  const [switcherVisible, setSwitcherVisible] = useState<boolean>(false);
+  const canSwitchSite = sites.length > 1;
   
   const [data, setData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -82,7 +87,33 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
             </TouchableOpacity>
           )}
           <Text style={styles.title}>{chantierName}</Text>
+          {canSwitchSite && (
+            <TouchableOpacity onPress={() => setSwitcherVisible(true)} style={styles.switchButton}>
+              <MaterialCommunityIcons name="swap-horizontal" size={26} color="#c2410c" />
+            </TouchableOpacity>
+          )}
+          {canCreateSite && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CreateSite')}
+              style={canSwitchSite ? styles.createIcon : styles.switchButton}
+            >
+              <MaterialCommunityIcons name="plus-circle-outline" size={26} color="#c2410c" />
+            </TouchableOpacity>
+          )}
         </View>
+
+        <SiteSwitcher
+          visible={switcherVisible}
+          sites={sites}
+          selectedSiteId={siteId}
+          onClose={() => setSwitcherVisible(false)}
+          onSelect={async (site) => {
+            setSwitcherVisible(false);
+            if (site.id === siteId) return;
+            await selectSite(site.id);
+            navigation.setParams({ chantierName: site.name, siteId: site.id });
+          }}
+        />
     
         <View style={styles.whiteCard}>
           <Text style={styles.sectionTitle}>Statistiques / {chantierName}</Text>
@@ -155,6 +186,8 @@ const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 110 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backButton: { marginRight: 10, marginLeft: -10 },
+  switchButton: { marginLeft: 'auto', padding: 6 },
+  createIcon: { padding: 6 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
   sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#111827', marginBottom: 14 },
   whiteCard: { backgroundColor: '#ffffff', borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },

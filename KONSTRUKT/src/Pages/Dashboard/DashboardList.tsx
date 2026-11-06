@@ -18,7 +18,7 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'DashboardList'>;
 
 const DashboardList: React.FC<Props> = ({ navigation }) => {
   const [userName, setUserName] = useState<string>('Utilisateur');
-  const { sites, loaded, error, loadSession, selectSite } = useSession();
+  const { sites, loaded, error, loadSession, selectSite, canCreateSite } = useSession();
   const hasSingleSite = loaded && sites.length === 1;
 
   useEffect(() => {
@@ -59,6 +59,12 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
         <View style={styles.countBadge}>
           <Text style={styles.countBadgeText}>{chantiers.length}</Text>
         </View>
+        {canCreateSite && (
+          <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate('CreateSite')}>
+            <MaterialCommunityIcons name="plus" size={18} color="#ffffff" />
+            <Text style={styles.createButtonText}>Nouveau</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -68,7 +74,10 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
     <TouchableOpacity 
       style={styles.card} 
       // MISE À JOUR : On passe siteId car il est requis par le DashboardStackParamList
-      onPress={() => navigation.navigate('JobsiteHub', { chantierName: item.name, siteId: item.id })}
+      onPress={() => {
+        selectSite(item.id);
+        navigation.navigate('JobsiteHub', { chantierName: item.name, siteId: item.id });
+      }}
     >
       <View style={styles.cardHeader}>
         <View style={styles.iconBox}>
@@ -132,6 +141,8 @@ const styles = StyleSheet.create({
   sectionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#111827' },
   countBadge: { marginLeft: 8, backgroundColor: '#e0e7ff', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 },
+  createButton: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', backgroundColor: '#c2410c', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999 },
+  createButtonText: { color: '#ffffff', fontSize: 13, fontWeight: 'bold', marginLeft: 4 },
   countBadgeText: { color: '#4f46e5', fontSize: 12, fontWeight: 'bold' },
   card: { backgroundColor: '#ffffff', borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
   cardHeader: { flexDirection: 'row', alignItems: 'center' },
