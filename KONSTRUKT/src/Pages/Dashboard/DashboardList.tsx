@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSession } from '../../Context/SessionContext';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator'; // On récupère le typage du Stack
 
 // 1. Définition de l'interface pour un Chantier
@@ -17,6 +19,8 @@ interface Worksite {
 type Props = NativeStackScreenProps<DashboardStackParamList, 'DashboardList'>;
 
 const DashboardList: React.FC<Props> = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [userName, setUserName] = useState<string>('Utilisateur');
   const { sites, loaded, error, loadSession, selectSite } = useSession();
   const hasSingleSite = loaded && sites.length === 1;
@@ -77,7 +81,7 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
         <View style={styles.info}>
           <Text style={styles.name}>{item.name}</Text>
           <View style={styles.locationRow}>
-            <MaterialCommunityIcons name="map-marker" size={14} color="#666" />
+            <MaterialCommunityIcons name="map-marker" size={14} color={colors.muted} />
             <Text style={styles.location}>{item.location}</Text>
           </View>
         </View>
@@ -118,28 +122,28 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
 };
 
 // ... Les styles restent identiques
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  errorText: { color: '#6b7280', fontSize: 14, textAlign: 'center' },
+  errorText: { color: colors.muted, fontSize: 14, textAlign: 'center' },
   banner: { backgroundColor: '#4f46e5', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 },
   brandText: { fontSize: 10, fontWeight: 'bold', letterSpacing: 2, color: '#c7d2fe', marginBottom: 4 },
   bannerTitle: { fontSize: 26, fontWeight: 'bold', color: '#ffffff' },
   list: { padding: 16, paddingBottom: 110 },
   headerContainer: { marginBottom: 8, paddingTop: 8 },
-  welcomeText: { fontSize: 22, fontWeight: 'bold', color: '#111827' },
-  subtitle: { fontSize: 14, color: '#6b7280', marginTop: 4, marginBottom: 24 },
+  welcomeText: { fontSize: 22, fontWeight: 'bold', color: colors.text },
+  subtitle: { fontSize: 14, color: colors.muted, marginTop: 4, marginBottom: 24 },
   sectionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#111827' },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text },
   countBadge: { marginLeft: 8, backgroundColor: '#e0e7ff', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 },
   countBadgeText: { color: '#4f46e5', fontSize: 12, fontWeight: 'bold' },
-  card: { backgroundColor: '#ffffff', borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   cardHeader: { flexDirection: 'row', alignItems: 'center' },
   iconBox: { width: 48, height: 48, borderRadius: 12, backgroundColor: '#e0e7ff', justifyContent: 'center', alignItems: 'center' },
   info: { flex: 1, marginLeft: 14 },
-  name: { fontSize: 16, fontWeight: 'bold', color: '#111827' },
+  name: { fontSize: 16, fontWeight: 'bold', color: colors.text },
   locationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  location: { fontSize: 13, color: '#6b7280', marginLeft: 4 },
+  location: { fontSize: 13, color: colors.muted, marginLeft: 4 },
 });
 
 export default DashboardList;

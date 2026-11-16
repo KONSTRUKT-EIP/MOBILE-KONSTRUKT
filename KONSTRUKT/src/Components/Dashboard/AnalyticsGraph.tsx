@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 interface GraphData {
   voiles: number[];
@@ -13,6 +15,8 @@ interface AnalyticsGraphProps {
 }
 
 const AnalyticsGraph: React.FC<AnalyticsGraphProps> = ({ data, labels }) => {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.container}>
       <LineChart
@@ -35,12 +39,12 @@ const AnalyticsGraph: React.FC<AnalyticsGraphProps> = ({ data, labels }) => {
         width={Dimensions.get("window").width - 70} 
         height={220}
         chartConfig={{
-          backgroundColor: "#FFF",
-          backgroundGradientFrom: "#FFF",
-          backgroundGradientTo: "#FFF",
+          backgroundColor: colors.surface,
+          backgroundGradientFrom: colors.surface,
+          backgroundGradientTo: colors.surface,
           decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
+          color: (opacity = 1) => isDark ? `rgba(243, 244, 246, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+          labelColor: (opacity = 1) => isDark ? `rgba(156, 163, 175, ${opacity})` : `rgba(102, 102, 102, ${opacity})`,
           propsForDots: { 
             r: "4", 
             strokeWidth: "2", 
@@ -57,8 +61,8 @@ const AnalyticsGraph: React.FC<AnalyticsGraphProps> = ({ data, labels }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   chart: { marginVertical: 0, borderRadius: 16, paddingRight: 40 }
 });
 

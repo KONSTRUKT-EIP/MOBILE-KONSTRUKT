@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import api from '../../API/Api';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DAY_COL_WIDTH = Math.max(SCREEN_WIDTH * 0.36, 130);
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -179,20 +181,26 @@ interface StatCardProps {
   value: number;
   color?: string;
 }
-const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => (
-  <View style={[styles.statCard, { backgroundColor: color || '#fff' }]}>
-    <Text style={styles.statIcon}>{icon}</Text>
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statLabel} numberOfLines={2}>
-      {label}
-    </Text>
-  </View>
-);
+const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  return (
+    <View style={[styles.statCard, { backgroundColor: color || colors.surface }]}>
+      <Text style={styles.statIcon}>{icon}</Text>
+      <Text style={[styles.statValue, !!color && { color: '#111827' }]}>{value}</Text>
+      <Text style={[styles.statLabel, !!color && { color: '#6b7280' }]} numberOfLines={2}>
+        {label}
+      </Text>
+    </View>
+  );
+};
 // ─── ActionItem ───────────────────────────────────────────────────────────────
 interface ActionItemProps {
   action: Action;
 }
 const ActionItem: React.FC<ActionItemProps> = ({ action }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const badge = BADGE_STYLES[action.badge] || BADGE_STYLES['À risque'];
   return (
     <View style={styles.actionItem}>
@@ -219,6 +227,8 @@ interface TaskCardProps {
   onPress: () => void;
 }
 const TaskCard: React.FC<TaskCardProps> = ({ task, onPress }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const s = STATUS_STYLES[task.status] || STATUS_STYLES['in-progress'];
   return (
     <TouchableOpacity
@@ -242,6 +252,8 @@ interface DayColumnProps {
   onTaskPress: (taskId: string) => void;
 }
 const DayColumn: React.FC<DayColumnProps> = ({ date, tasks, weather, isToday, onTaskPress }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const isoDate = toISO(date);
   const dayTasks = tasks.filter((t) => t.date === isoDate);
   return (
@@ -266,12 +278,16 @@ interface DetailRowProps {
   label: string;
   value: string;
 }
-const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => (
-  <View style={styles.detailRow}>
-    <Text style={styles.detailRowLabel}>{label}</Text>
-    <Text style={styles.detailRowValue}>{value}</Text>
-  </View>
-);
+const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  return (
+    <View style={styles.detailRow}>
+      <Text style={styles.detailRowLabel}>{label}</Text>
+      <Text style={styles.detailRowValue}>{value}</Text>
+    </View>
+  );
+};
 // ─── TaskDetailModal ──────────────────────────────────────────────────────────
 interface TaskDetailModalProps {
   visible: boolean;
@@ -280,6 +296,8 @@ interface TaskDetailModalProps {
   onUpdate?: () => void;
 }
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ visible, taskId, onClose, onUpdate }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
@@ -362,7 +380,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ visible, taskId, onCl
                 </TouchableOpacity>
               )}
               <TouchableOpacity onPress={onClose}>
-                <MaterialCommunityIcons name="close" size={22} color="#6b7280" />
+                <MaterialCommunityIcons name="close" size={22} color={colors.muted} />
               </TouchableOpacity>
             </View>
           </View>
@@ -374,7 +392,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ visible, taskId, onCl
                 // ── Read mode ───────────────────────────────────────────────
                 <>
                   <View style={styles.badgeRow}>
-                    <View style={[styles.typeBadge, { backgroundColor: '#f3f4f6' }]}>
+                    <View style={[styles.typeBadge, { backgroundColor: colors.background }]}>
                       <Text style={styles.typeBadgeText}>{task.type}</Text>
                     </View>
                     <View
@@ -452,7 +470,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ visible, taskId, onCl
                     style={styles.editInput}
                     value={editData.name}
                     onChangeText={(v) => setEditData((p) => ({ ...p, name: v }))}
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor={colors.placeholder}
                   />
                   <Text style={styles.editLabel}>Description</Text>
                   <TextInput
@@ -461,7 +479,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ visible, taskId, onCl
                     onChangeText={(v) => setEditData((p) => ({ ...p, description: v }))}
                     multiline
                     placeholder="Description optionnelle"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor={colors.placeholder}
                   />
                   <Text style={styles.editLabel}>Statut</Text>
                   <View style={styles.chipRow}>
@@ -526,6 +544,8 @@ interface CreateTaskModalProps {
   onCreated?: () => void;
 }
 const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onCreated }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [form, setForm] = useState<TaskFormData>({
     name: '',
     description: '',
@@ -610,7 +630,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Nouvelle tâche</Text>
             <TouchableOpacity onPress={onClose}>
-              <MaterialCommunityIcons name="close" size={22} color="#6b7280" />
+              <MaterialCommunityIcons name="close" size={22} color={colors.muted} />
             </TouchableOpacity>
           </View>
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
@@ -621,7 +641,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
                 value={form.name}
                 onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
                 placeholder="Nom de la tâche"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
               />
               <Text style={styles.editLabel}>Description</Text>
               <TextInput
@@ -630,7 +650,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
                 onChangeText={(v) => setForm((p) => ({ ...p, description: v }))}
                 multiline
                 placeholder="Description optionnelle"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
               />
               <Text style={styles.editLabel}>Date d'échéance * (YYYY-MM-DD)</Text>
               <TextInput
@@ -638,7 +658,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
                 value={form.plannedEnd}
                 onChangeText={(v) => setForm((p) => ({ ...p, plannedEnd: v }))}
                 placeholder="ex: 2026-03-15"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 keyboardType="numbers-and-punctuation"
               />
               <Text style={styles.editLabel}>Heure (HH:MM)</Text>
@@ -647,7 +667,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ visible, onClose, onC
                 value={form.time}
                 onChangeText={(v) => setForm((p) => ({ ...p, time: v }))}
                 placeholder="ex: 08:30"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 keyboardType="numbers-and-punctuation"
               />
               <Text style={styles.editLabel}>Type</Text>
@@ -751,6 +771,8 @@ interface TaskListItemProps {
   onPress: () => void;
 }
 const TaskListItem: React.FC<TaskListItemProps> = ({ task, onPress }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const s = STATUS_STYLES[task.status] || STATUS_STYLES['in-progress'];
   return (
     <TouchableOpacity style={styles.taskListItem} onPress={onPress} activeOpacity={0.7}>
@@ -770,6 +792,8 @@ const TaskListItem: React.FC<TaskListItemProps> = ({ task, onPress }) => {
 };
 // ─── Main Planning Screen ─────────────────────────────────────────────────────
 const PlanningPage: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()));
   const [tasks, setTasks] = useState<Task[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
@@ -849,7 +873,7 @@ const PlanningPage: React.FC = () => {
         </TouchableOpacity>
         <View style={styles.stripRow}>
           <TouchableOpacity style={styles.navBtn} onPress={goToPrevWeek}>
-            <MaterialCommunityIcons name="chevron-left" size={24} color="#374151" />
+            <MaterialCommunityIcons name="chevron-left" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
           <View style={styles.dayStrip}>
             {weekDays.map((day, i) => {
@@ -883,7 +907,7 @@ const PlanningPage: React.FC = () => {
             })}
           </View>
           <TouchableOpacity style={styles.navBtn} onPress={goToNextWeek}>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#374151" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -987,11 +1011,11 @@ const PlanningPage: React.FC = () => {
   );
 };
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   // ── Layout ──────────────────────────────────────────────────────────────────
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
   },
   scroll: {
     flex: 1,
@@ -1004,7 +1028,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#6b7280',
+    color: colors.muted,
   },
   // ── Top bar ─────────────────────────────────────────────────────────────────
   topBar: {
@@ -1013,9 +1037,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.05,
@@ -1024,7 +1048,7 @@ const styles = StyleSheet.create({
   topBarTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
   },
   newTaskBtn: {
     flexDirection: 'row',
@@ -1042,12 +1066,12 @@ const styles = StyleSheet.create({
   },
   // ── Week strip header (Teams-style) ─────────────────────────────────────────────
   weekHeader: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     paddingHorizontal: 8,
     paddingTop: 10,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.04,
@@ -1056,7 +1080,7 @@ const styles = StyleSheet.create({
   monthLabel: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
     paddingHorizontal: 8,
     paddingBottom: 8,
   },
@@ -1067,7 +1091,7 @@ const styles = StyleSheet.create({
   navBtn: {
     padding: 6,
     borderRadius: 8,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
   },
   dayStrip: {
     flex: 1,
@@ -1082,7 +1106,7 @@ const styles = StyleSheet.create({
   dayPillName: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: colors.placeholder,
     marginBottom: 4,
     textTransform: 'uppercase',
   },
@@ -1106,7 +1130,7 @@ const styles = StyleSheet.create({
   dayPillDate: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#374151',
+    color: colors.textSecondary,
   },
   dayPillDateSelected: {
     color: '#ffffff',
@@ -1126,7 +1150,7 @@ const styles = StyleSheet.create({
   },
   dayDotSelected: {
     opacity: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   // ── Stat cards ───────────────────────────────────────────────────────────────
   statsScrollContent: {
@@ -1138,13 +1162,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     marginRight: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 4,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
   },
   statIcon: {
     fontSize: 24,
@@ -1153,11 +1177,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
   },
   statLabel: {
     fontSize: 11,
-    color: '#6b7280',
+    color: colors.muted,
     marginTop: 4,
     lineHeight: 16,
   },
@@ -1165,7 +1189,7 @@ const styles = StyleSheet.create({
   actionsCard: {
     marginHorizontal: 16,
     marginBottom: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
     elevation: 2,
@@ -1173,7 +1197,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
   },
   actionsHeader: {
     flexDirection: 'row',
@@ -1183,7 +1207,7 @@ const styles = StyleSheet.create({
   actionsTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
     marginLeft: 6,
     flex: 1,
   },
@@ -1203,7 +1227,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
   },
   actionIconBox: {
     width: 38,
@@ -1222,11 +1246,11 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.text,
   },
   actionSub: {
     fontSize: 11,
-    color: '#6b7280',
+    color: colors.muted,
     marginTop: 2,
   },
   actionBadge: {
@@ -1259,7 +1283,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 11,
-    color: '#6b7280',
+    color: colors.muted,
   },
   // ── Day section + task list (Teams-style) ─────────────────────────────────
   daySectionHeader: {
@@ -1273,7 +1297,7 @@ const styles = StyleSheet.create({
   daySectionTitle: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
     textTransform: 'capitalize',
   },
   todayLink: {
@@ -1287,19 +1311,19 @@ const styles = StyleSheet.create({
   },
   emptyDayText: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.placeholder,
     marginTop: 12,
   },
   taskListItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     marginHorizontal: 16,
     marginBottom: 10,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.05,
@@ -1323,7 +1347,7 @@ const styles = StyleSheet.create({
   taskListTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.text,
     marginBottom: 6,
   },
   taskListBadge: {
@@ -1343,7 +1367,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -1353,7 +1377,7 @@ const styles = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -1368,7 +1392,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
     flex: 1,
     marginRight: 12,
   },
@@ -1399,7 +1423,7 @@ const styles = StyleSheet.create({
   typeBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#374151',
+    color: colors.textSecondary,
   },
   statusBadge: {
     paddingHorizontal: 10,
@@ -1416,34 +1440,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
   },
   detailRowLabel: {
     fontSize: 13,
-    color: '#6b7280',
+    color: colors.muted,
   },
   detailRowValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.text,
   },
   detailDesc: {
     marginTop: 16,
     padding: 12,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
     borderRadius: 12,
   },
   detailDescLabel: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#374151',
+    color: colors.textSecondary,
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   detailDescText: {
     fontSize: 13,
-    color: '#374151',
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   detailSection: {
@@ -1452,14 +1476,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   assigneeText: {
     fontSize: 13,
-    color: '#374151',
+    color: colors.textSecondary,
     paddingVertical: 4,
   },
   alertItem: {
@@ -1469,7 +1493,7 @@ const styles = StyleSheet.create({
   },
   alertText: {
     fontSize: 13,
-    color: '#374151',
+    color: colors.textSecondary,
     marginLeft: 8,
     flex: 1,
   },
@@ -1477,18 +1501,18 @@ const styles = StyleSheet.create({
   editLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#374151',
+    color: colors.textSecondary,
     marginBottom: 6,
     marginTop: 12,
   },
   editInput: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     borderRadius: 10,
     padding: 12,
     fontSize: 14,
-    color: '#111827',
+    color: colors.text,
   },
   chipRow: {
     flexDirection: 'row',
@@ -1499,9 +1523,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     marginRight: 8,
     marginBottom: 8,
   },
@@ -1511,7 +1535,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 12,
-    color: '#374151',
+    color: colors.textSecondary,
   },
   chipTextActive: {
     color: '#c2410c',
@@ -1525,12 +1549,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
   },
   priorityBtnActive: {
     backgroundColor: '#c2410c',
@@ -1539,7 +1563,7 @@ const styles = StyleSheet.create({
   priorityBtnText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#374151',
+    color: colors.textSecondary,
   },
   priorityBtnTextActive: {
     color: '#ffffff',
@@ -1551,17 +1575,17 @@ const styles = StyleSheet.create({
   cancelBtn: {
     flex: 1,
     paddingVertical: 14,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     marginRight: 10,
   },
   cancelBtnText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#374151',
+    color: colors.textSecondary,
   },
   saveBtn: {
     flex: 1,
@@ -1583,7 +1607,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 10,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
     borderRadius: 10,
     marginBottom: 6,
     borderWidth: 1,
@@ -1595,7 +1619,7 @@ const styles = StyleSheet.create({
   },
   selectableText: {
     fontSize: 13,
-    color: '#374151',
+    color: colors.textSecondary,
   },
   selectableTextActive: {
     color: '#c2410c',
@@ -1640,7 +1664,7 @@ const styles = StyleSheet.create({
   dayName: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#374151',
+    color: colors.textSecondary,
   },
   dayNameToday: {
     color: '#ffffff',
@@ -1648,7 +1672,7 @@ const styles = StyleSheet.create({
   dayDate: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
   },
   dayDateToday: {
     color: '#ffffff',
@@ -1659,7 +1683,7 @@ const styles = StyleSheet.create({
   },
   noTasksText: {
     textAlign: 'center',
-    color: '#9ca3af',
+    color: colors.placeholder,
     fontSize: 12,
     marginTop: 20,
   },

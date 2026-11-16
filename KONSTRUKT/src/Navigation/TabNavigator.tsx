@@ -1,12 +1,10 @@
 import React from 'react';
-import { TouchableOpacity, Alert } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../Theme/ThemeContext';
 import { RootStackParamList } from '../../App'; // On importe le type défini dans App.tsx
-import authService from '../Services/authService';
-import { useSession } from '../Context/SessionContext';
 
 // Import des pages
 import DashboardList from '../Pages/Dashboard/DashboardList';
@@ -63,42 +61,24 @@ type TabNavigatorProps = {
 };
 
 const TabNavigator: React.FC<TabNavigatorProps> = ({ navigation }) => {
-  const { clearSession } = useSession();
-  const handleLogout = () => {
-    Alert.alert("Déconnexion", "Voulez-vous vraiment vous déconnecter ?", [
-      { text: "Annuler", style: "cancel" },
-      { 
-        text: "Se déconnecter", 
-        onPress: async () => {
-          try {
-            await authService.logout();
-          } catch {
-          }
-          await AsyncStorage.clear();
-          await clearSession();
-          navigation.replace('Login'); // Maintenant typé grâce à RootStackParamList
-        }, 
-        style: "destructive" 
-      }
-    ]);
-  };
-
+  const { colors } = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true,
-        headerStyle: { backgroundColor: '#f3f4f6' },
-        headerTitleStyle: { fontWeight: 'bold', color: '#111827' },
+        headerStyle: { backgroundColor: colors.background },
+        headerTitleStyle: { fontWeight: 'bold', color: colors.text },
         headerRight: () => (
-          <TouchableOpacity onPress={handleLogout} style={{ marginRight: 20 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={{ marginRight: 20 }}>
             <MaterialCommunityIcons name="cog" size={30} color="#c2410c" />
           </TouchableOpacity>
         ),
         tabBarActiveTintColor: '#c2410c',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarInactiveTintColor: colors.placeholder,
         tabBarLabelStyle: { fontSize: 12, fontWeight: '700', marginBottom: 8 },
         tabBarStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.surface,
+          borderTopWidth: 0,
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           height: 88,

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import api from '../../API/Api';
 import StatCircle from '../../Components/Dashboard/StatCircle';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator'; // Import du typage global
 
 // 1. Définition des interfaces pour les données de l'API
@@ -30,6 +32,8 @@ interface TeamStat {
 type Props = NativeStackScreenProps<DashboardStackParamList, 'JobsiteHub'>;
 
 const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   // On récupère les paramètres typés (chantierName et siteId)
   const { chantierName, siteId } = route.params;
   
@@ -149,31 +153,31 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
 };
 
 // ... Styles identiques à ta version JS
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { padding: 20, paddingBottom: 110 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backButton: { marginRight: 10, marginLeft: -10 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
-  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#111827', marginBottom: 14 },
-  whiteCard: { backgroundColor: '#ffffff', borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  title: { fontSize: 24, fontWeight: 'bold', color: colors.text },
+  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: colors.text, marginBottom: 14 },
+  whiteCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   horizontalRow: { flexDirection: 'row', paddingVertical: 10 },
   statWrapper: { width: 100, marginRight: 10, alignItems: 'center' },
   statTextContainer: { marginTop: 8, alignItems: 'center' },
-  statLabelText: { fontSize: 12, fontWeight: 'bold', color: '#111827' },
-  statSubText: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
+  statLabelText: { fontSize: 12, fontWeight: 'bold', color: colors.text },
+  statSubText: { fontSize: 11, color: colors.placeholder, marginTop: 2 },
   actionGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  actionCard: { width: '48%', padding: 20, alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  actionCard: { width: '48%', padding: 20, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   iconCircle: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  actionLabel: { fontSize: 15, fontWeight: 'bold', color: '#111827' },
-  categoryCard: { flexDirection: 'row', alignItems: 'center', padding: 16, marginBottom: 10, backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  actionLabel: { fontSize: 15, fontWeight: 'bold', color: colors.text },
+  categoryCard: { flexDirection: 'row', alignItems: 'center', padding: 16, marginBottom: 10, backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   cardLeft: { flex: 1.2 },
   cardLabel: { fontSize: 16, fontWeight: 'bold' },
-  cardDesc: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  cardDesc: { fontSize: 12, color: colors.muted, marginTop: 2 },
   cardRight: { flex: 1, paddingHorizontal: 10 },
   progressValue: { fontSize: 11, fontWeight: 'bold', color: '#6366f1', textAlign: 'right' },
-  progressBarBg: { height: 6, marginTop: 5, borderRadius: 3, backgroundColor: '#E5E7EB' },
+  progressBarBg: { height: 6, marginTop: 5, borderRadius: 3, backgroundColor: colors.border },
   progressBarFill: { height: '100%', borderRadius: 3, backgroundColor: '#818CF8' },
 });
 

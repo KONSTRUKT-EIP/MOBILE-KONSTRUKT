@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   StyleSheet, View, Text, TextInput, TouchableOpacity, 
   Image, KeyboardAvoidingView, Platform, ActivityIndicator 
@@ -7,11 +7,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import authService from '../../../Services/authService';
 import { useSession } from '../../../Context/SessionContext';
+import { useTheme } from '../../../Theme/ThemeContext';
+import { ThemeColors } from '../../../Theme/colors';
 import { RootStackParamList } from '../../../../App'; // Vérifie que le chemin remonte bien à la racine
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginPage: React.FC<Props> = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { loadSession } = useSession();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -73,7 +77,7 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
           <TextInput
             style={[styles.input, error ? styles.inputError : null]}
             placeholder="exemple@mail.com"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.placeholder}
             value={email}
             onChangeText={(text) => { setEmail(text); setError(''); }}
             keyboardType="email-address"
@@ -84,7 +88,7 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
           <TextInput
             style={styles.input}
             placeholder="Votre mot de passe"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.placeholder}
             value={password}
             onChangeText={(text) => { setPassword(text); setError(''); }}
             secureTextEntry
@@ -113,21 +117,21 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   inner: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  form: { width: '100%', backgroundColor: '#ffffff', borderRadius: 16, padding: 24, borderWidth: 1, borderColor: '#f3f4f6', elevation: 4, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12 },
+  form: { width: '100%', backgroundColor: colors.surface, borderRadius: 16, padding: 24, borderWidth: 1, borderColor: colors.border, elevation: 4, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12 },
   logo: { width: 160, height: 160, marginBottom: 12 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#111827', marginBottom: 24, textAlign: 'center' },
-  inputLabel: { color: '#374151', fontSize: 13, fontWeight: '600', marginBottom: 6, marginLeft: 2 },
-  input: { backgroundColor: '#f3f4f6', color: '#111827', padding: 13, borderRadius: 8, marginBottom: 14, borderWidth: 1, borderColor: '#e5e7eb', fontSize: 14 },
+  title: { fontSize: 22, fontWeight: 'bold', color: colors.text, marginBottom: 24, textAlign: 'center' },
+  inputLabel: { color: colors.textSecondary, fontSize: 13, fontWeight: '600', marginBottom: 6, marginLeft: 2 },
+  input: { backgroundColor: colors.background, color: colors.text, padding: 13, borderRadius: 8, marginBottom: 14, borderWidth: 1, borderColor: colors.border, fontSize: 14 },
   inputError: { borderColor: '#ef4444' },
   button: { backgroundColor: '#c2410c', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 8, height: 52, justifyContent: 'center' },
   buttonDisabled: { opacity: 0.4 },
   buttonText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
   errorText: { color: '#ef4444', fontSize: 13, fontWeight: '500', marginBottom: 12, textAlign: 'center' },
   forgotPasswordContainer: { marginTop: 14, alignItems: 'center' },
-  forgotPasswordText: { color: '#6b7280', fontSize: 14 },
+  forgotPasswordText: { color: colors.muted, fontSize: 14 },
 });
 
 export default LoginPage;

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   StyleSheet, View, Text, Modal, TextInput, 
   TouchableOpacity, KeyboardAvoidingView, Platform 
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 // Structure de la commande créée
 export interface OrderDto {
@@ -21,6 +23,8 @@ interface CreateOrderModalProps {
 }
 
 const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ visible, onClose, onCreate }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [productName, setProductName] = useState<string>('');
   const [productIcon, setProductIcon] = useState<string>('');
   const [price, setPrice] = useState<string>('1');
@@ -74,15 +78,15 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ visible, onClose, o
 };
 
 // ... Styles identiques
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-  modalContent: { backgroundColor: '#FFF', borderRadius: 20, padding: 25 },
-  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#111827', marginBottom: 20 },
-  inputLabel: { fontSize: 15, fontWeight: '600', color: '#374151', marginBottom: 5, marginTop: 10 },
-  input: { borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 10, padding: 12, fontSize: 16, color: '#111827' },
+  modalContent: { backgroundColor: colors.surface, borderRadius: 20, padding: 25 },
+  modalTitle: { fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 20 },
+  inputLabel: { fontSize: 15, fontWeight: '600', color: colors.textSecondary, marginBottom: 5, marginTop: 10 },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, padding: 12, fontSize: 16, color: colors.text },
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: 30 },
   cancelBtn: { paddingVertical: 10, marginRight: 25 },
-  cancelText: { fontSize: 18, color: '#6B7280', marginTop: -35 },
+  cancelText: { fontSize: 18, color: colors.muted, marginTop: -35 },
   createBtn: { backgroundColor: '#c2410c', paddingHorizontal: 25, paddingVertical: 12, borderRadius: 12, marginTop: -50 },
   createBtnText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' }
 });

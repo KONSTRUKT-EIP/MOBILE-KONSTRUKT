@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import api from '../../API/Api'; 
 import AnalyticsGraph from '../../Components/Dashboard/AnalyticsGraph'; 
 import CreateOrderModal from '../../Components/Dashboard/CreateOrderModal';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator'; //
 
 // 1. Interfaces pour les données
@@ -34,6 +36,8 @@ interface Order {
 type Props = NativeStackScreenProps<DashboardStackParamList, 'TradeDashboard'>;
 
 const TradeDashboard: React.FC<Props> = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { category, chantierName } = route.params; //
   const [reportData, setReportData] = useState<AnalyticsReport | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -162,19 +166,19 @@ const TradeDashboard: React.FC<Props> = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   scrollContent: { padding: 15, paddingBottom: 110 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backBtn: { marginRight: 10 }, // CORRECTION : backBtn est maintenant présent
   headerTitle: { fontSize: 20, fontWeight: 'bold' },
   kpiRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
-  kpiCard: { width: '31%', padding: 10, alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 12, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
-  kpiLabel: { fontSize: 10, fontWeight: 'bold', color: '#6b7280' },
+  kpiCard: { width: '31%', padding: 10, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.border, elevation: 2 },
+  kpiLabel: { fontSize: 10, fontWeight: 'bold', color: colors.muted },
   kpiValue: { fontSize: 18, fontWeight: 'bold', color: '#c2410c' },
-  kpiSpent: { fontSize: 9, color: '#9ca3af' },
-  whiteCard: { padding: 15, marginBottom: 15, backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  kpiSpent: { fontSize: 9, color: colors.placeholder },
+  whiteCard: { padding: 15, marginBottom: 15, backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 15 },
   cardTitle: { fontSize: 16, fontWeight: 'bold' },
   overallText: { fontSize: 12, fontWeight: 'bold', color: '#818CF8' },
@@ -185,14 +189,14 @@ const styles = StyleSheet.create({
   budgetDivider: { width: 1, backgroundColor: '#444' },
   filterGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   filterItem: { flexDirection: 'row', alignItems: 'center', width: '50%', marginBottom: 10 },
-  filterLabel: { marginLeft: 8, fontSize: 14, color: '#111827' },
+  filterLabel: { marginLeft: 8, fontSize: 14, color: colors.text },
   orderHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 15 },
   addBtn: { padding: 8, borderRadius: 8, backgroundColor: '#c2410c' },
   addBtnText: { fontSize: 12, fontWeight: 'bold', color: '#FFF' },
-  orderRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#EEE' },
+  orderRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.border },
   orderName: { fontSize: 14, fontWeight: '600' },
-  orderSub: { fontSize: 12, color: '#6b7280' },
-  orderTotal: { fontWeight: 'bold', color: '#111827' },
+  orderSub: { fontSize: 12, color: colors.muted },
+  orderTotal: { fontWeight: 'bold', color: colors.text },
 });
 
 export default TradeDashboard;

@@ -1,17 +1,23 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 import { CurrentWeatherData, WeatherInfo } from '../../Types/Weather'; // Majuscule ici !
 
 // On définit StatItem avant pour qu'il soit trouvé par TypeScript
 const StatItem: React.FC<{ emoji: string; label: string; val: string; bg: string; mt?: number }> = 
-({ emoji, label, val, bg, mt }) => (
-  <View style={[styles.gridItem, { backgroundColor: bg, marginTop: mt || 0 }]}>
-    <Text style={styles.gridEmoji}>{emoji}</Text>
-    <Text style={styles.gridLabel}>{label}</Text>
-    <Text style={styles.gridVal}>{val}</Text>
-  </View>
-);
+({ emoji, label, val, bg, mt }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  return (
+    <View style={[styles.gridItem, { backgroundColor: bg, marginTop: mt || 0 }]}>
+      <Text style={styles.gridEmoji}>{emoji}</Text>
+      <Text style={styles.gridLabel}>{label}</Text>
+      <Text style={styles.gridVal}>{val}</Text>
+    </View>
+  );
+};
 
 interface Props {
   data: CurrentWeatherData;
@@ -19,6 +25,8 @@ interface Props {
 }
 
 const CurrentWeatherCard: React.FC<Props> = ({ data, getWeatherInfo }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const info = getWeatherInfo(data.weatherDescription);
   
   return (
@@ -42,16 +50,16 @@ const CurrentWeatherCard: React.FC<Props> = ({ data, getWeatherInfo }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  currentCard: { padding: 20, marginBottom: 20, backgroundColor: '#ffffff', borderRadius: 20, elevation: 3 },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  currentCard: { padding: 20, marginBottom: 20, backgroundColor: colors.surface, borderRadius: 20, elevation: 3 },
   currentMain: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   tempText: { fontSize: 44, fontWeight: 'bold', color: '#1f2937' },
   descText: { fontSize: 18, color: '#4b5563', textTransform: 'capitalize' },
-  feelsText: { fontSize: 14, color: '#9ca3af' },
+  feelsText: { fontSize: 14, color: colors.placeholder },
   gridContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   gridItem: { width: '48%', padding: 12, alignItems: 'center', borderRadius: 15 },
   gridEmoji: { fontSize: 20, marginBottom: 4 },
-  gridLabel: { fontSize: 11, color: '#64748b' },
+  gridLabel: { fontSize: 11, color: '#6b7280' },
   gridVal: { fontSize: 16, fontWeight: 'bold', color: '#1e293b' },
 });
 
