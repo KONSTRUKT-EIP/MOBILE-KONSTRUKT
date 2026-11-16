@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -8,6 +8,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator';
 import { useSession } from '../../Context/SessionContext';
 import siteService, { SiteStatus } from '../../Services/siteService';
+import worksiteService from '../../Services/worksiteService';
 
 type Props = NativeStackScreenProps<DashboardStackParamList, 'CreateSite'>;
 
@@ -27,8 +28,11 @@ const isValidDate = (value: string): boolean => {
 
 const todayIso = (): string => new Date().toISOString().slice(0, 10);
 
-const CreateSite: React.FC<Props> = ({ navigation }) => {
+const CreateSite: React.FC<Props> = ({ navigation, route }) => {
   const { organizationId, loadSession, selectSite } = useSession();
+  const editingId = route.params?.siteId;
+  const isEditing = !!editingId;
+  const [loadingSite, setLoadingSite] = useState<boolean>(isEditing);
 
   const [name, setName] = useState<string>('');
   const [address, setAddress] = useState<string>('');
@@ -41,6 +45,24 @@ const CreateSite: React.FC<Props> = ({ navigation }) => {
   const [error, setError] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (!editingId) return;
+    worksiteService
+      .getDetail(editingId)
+      .then(site => {
+        setName(site.name);
+        setAddress(site.address);
+        setCity(site.city);
+        setPostalCode(site.postalCode);
+        setStartDate(site.startDate ? site.startDate.slice(0, 10) : '');
+        setEndDate(site.endDate ? site.endDate.slice(0, 10) : '');
+        setStatus(site.status as SiteStatus);
+        setBudget(site.budget !== null && site.budget !== undefined ? String(site.budget) : '');
+      })
+      .catch(() => setError('Impossible de charger le chantier.'))
+      .finally(() => setLoadingSite(false));
+  }, [editingId]);
+
   const validate = (): string => {
     if (!name.trim()) return 'Le nom du chantier est obligatoire.';
     if (!address.trim()) return "L'adresse est obligatoire.";
@@ -51,7 +73,7 @@ const CreateSite: React.FC<Props> = ({ navigation }) => {
     if (endDate.trim() && endDate.trim() < startDate.trim()) return 'La date de fin doit être après la date de début.';
     const amount = Number(budget.replace(',', '.'));
     if (!budget.trim() || Number.isNaN(amount) || amount < 0) return 'Le budget doit être un nombre positif.';
-    if (!organizationId) return 'Organisation introuvable, reconnectez-vous.';
+    if (!isEditing && !organizationId) return 'Organisation introuvable, reconnectez-vous.';
     return '';
   };
 
@@ -64,6 +86,21 @@ const CreateSite: React.FC<Props> = ({ navigation }) => {
     setError('');
     setSubmitting(true);
     try {
+      if (editingId) {
+        const updated = await siteService.updateSite(editingId, {
+          name: name.trim(),
+          address: address.trim(),
+          city: city.trim(),
+          postalCode: postalCode.trim(),
+          startDate: startDate.trim(),
+          endDate: endDate.trim() || undefined,
+          status,
+          budget: Number(budget.replace(',', '.')),
+        });
+        await loadSession();
+        navigation.popTo('JobsiteHub', { chantierName: updated.name ?? name.trim(), siteId: editingId });
+        return;
+      }
       const site = await siteService.createSite({
         organizationId: organizationId as string,
         name: name.trim(),
@@ -80,10 +117,10 @@ const CreateSite: React.FC<Props> = ({ navigation }) => {
       navigation.replace('JobsiteHub', { chantierName: site.name, siteId: site.id });
     } catch (err: any) {
       if (err.response?.status === 403) {
-        setError("Votre rôle ne permet pas de créer un chantier.");
+        setError(isEditing ? "Votre rôle ne permet pas de modifier ce chantier." : "Votre rôle ne permet pas de créer un chantier.");
       } else {
         const message = err.response?.data?.message;
-        setError((Array.isArray(message) ? message[0] : message) || 'Impossible de créer le chantier.');
+        setError((Array.isArray(message) ? message[0] : message) || (isEditing ? 'Impossible de modifier le chantier.' : 'Impossible de créer le chantier.'));
       }
     } finally {
       setSubmitting(false);
@@ -99,9 +136,12 @@ const CreateSite: React.FC<Props> = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <MaterialCommunityIcons name="chevron-left" size={32} color="#c2410c" />
         </TouchableOpacity>
-        <Text style={styles.title}>Nouveau chantier</Text>
+        <Text style={styles.title}>{isEditing ? 'Modifier le chantier' : 'Nouveau chantier'}</Text>
       </View>
 
+      {loadingSite ? (
+        <ActivityIndicator size="large" color="#c2410c" style={styles.loader} />
+      ) : (
       <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
         <Text style={styles.label}>Nom du chantier</Text>
         <TextInput style={styles.input} placeholder="Ex : Tour Horizon" placeholderTextColor="#9ca3af" value={name} onChangeText={setName} />
@@ -154,10 +194,11 @@ const CreateSite: React.FC<Props> = ({ navigation }) => {
             <Text style={styles.cancelText}>Annuler</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.submitButton, submitting && styles.submitDisabled]} onPress={handleSubmit} disabled={submitting}>
-            {submitting ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.submitText}>Créer</Text>}
+            {submitting ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.submitText}>{isEditing ? 'Enregistrer' : 'Créer'}</Text>}
           </TouchableOpacity>
         </View>
       </ScrollView>
+      )}
     </KeyboardAvoidingView>
   );
 };
@@ -167,6 +208,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingBottom: 8 },
   backButton: { marginRight: 6, marginLeft: -8 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
+  loader: { marginTop: 60 },
   form: { padding: 16, paddingBottom: 140 },
   label: { color: '#374151', fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 10 },
   input: { backgroundColor: '#ffffff', color: '#111827', padding: 13, borderRadius: 10, borderWidth: 1, borderColor: '#e5e7eb', fontSize: 14 },

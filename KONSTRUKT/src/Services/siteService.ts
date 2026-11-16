@@ -15,7 +15,14 @@ export interface CreateSitePayload {
   budget: number;
 }
 
+export type UpdateSitePayload = Partial<Omit<CreateSitePayload, 'organizationId'>>;
+
 const siteService = {
+  updateSite: async (siteId: string, payload: UpdateSitePayload): Promise<AccessibleSite> => {
+    const response = await api.put<AccessibleSite>(`/sites/${siteId}`, payload);
+    return response.data;
+  },
+
   createSite: async (payload: CreateSitePayload): Promise<AccessibleSite> => {
     const response = await api.post<AccessibleSite>('/sites', payload);
     return response.data;
