@@ -15,7 +15,17 @@ export interface CreateSitePayload {
   budget: number;
 }
 
+export type SiteProgressMap = Record<string, number | null>;
+
 const siteService = {
+  getProgress: async (): Promise<SiteProgressMap> => {
+    const response = await api.get<{ id: string; progressPct?: number | null }[]>('/sites');
+    return response.data.reduce<SiteProgressMap>((map, site) => {
+      map[site.id] = site.progressPct ?? null;
+      return map;
+    }, {});
+  },
+
   createSite: async (payload: CreateSitePayload): Promise<AccessibleSite> => {
     const response = await api.post<AccessibleSite>('/sites', payload);
     return response.data;
