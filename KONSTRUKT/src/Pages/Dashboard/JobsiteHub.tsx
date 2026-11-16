@@ -34,7 +34,7 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'JobsiteHub'>;
 const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
   // On récupère les paramètres typés (chantierName et siteId)
   const { chantierName, siteId } = route.params;
-  const { sites, selectSite } = useSession();
+  const { sites, selectSite, canCreateSite } = useSession();
   const [switcherVisible, setSwitcherVisible] = useState<boolean>(false);
   const canSwitchSite = sites.length > 1;
   
@@ -90,6 +90,14 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
           {canSwitchSite && (
             <TouchableOpacity onPress={() => setSwitcherVisible(true)} style={styles.switchButton}>
               <MaterialCommunityIcons name="swap-horizontal" size={26} color="#c2410c" />
+            </TouchableOpacity>
+          )}
+          {canCreateSite && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CreateSite')}
+              style={canSwitchSite ? styles.createIcon : styles.switchButton}
+            >
+              <MaterialCommunityIcons name="plus-circle-outline" size={26} color="#c2410c" />
             </TouchableOpacity>
           )}
         </View>
@@ -179,6 +187,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backButton: { marginRight: 10, marginLeft: -10 },
   switchButton: { marginLeft: 'auto', padding: 6 },
+  createIcon: { padding: 6 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
   sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#111827', marginBottom: 14 },
   whiteCard: { backgroundColor: '#ffffff', borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
