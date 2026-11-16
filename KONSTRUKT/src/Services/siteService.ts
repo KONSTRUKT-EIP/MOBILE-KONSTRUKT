@@ -18,6 +18,10 @@ export interface CreateSitePayload {
 export type UpdateSitePayload = Partial<Omit<CreateSitePayload, 'organizationId'>>;
 
 const siteService = {
+  deleteSite: async (siteId: string): Promise<void> => {
+    await api.delete(`/sites/${siteId}`);
+  },
+
   updateSite: async (siteId: string, payload: UpdateSitePayload): Promise<AccessibleSite> => {
     const response = await api.put<AccessibleSite>(`/sites/${siteId}`, payload);
     return response.data;

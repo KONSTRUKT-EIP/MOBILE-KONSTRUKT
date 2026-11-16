@@ -13,6 +13,7 @@ interface SessionContextValue {
   selectedSite: AccessibleSite | null;
   organizationId: string | null;
   canCreateSite: boolean;
+  canDeleteSite: boolean;
   loaded: boolean;
   error: string;
   loadSession: () => Promise<User | null>;
@@ -84,10 +85,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const canCreateSite = role !== null && SITE_CREATOR_ROLES.includes(role);
+  const canDeleteSite = role === 'ADMIN';
 
   const value = useMemo(
-    () => ({ user, sites, selectedSite, organizationId, canCreateSite, loaded, error, loadSession, selectSite, clearSession }),
-    [user, sites, selectedSite, organizationId, canCreateSite, loaded, error, loadSession, selectSite, clearSession]
+    () => ({ user, sites, selectedSite, organizationId, canCreateSite, canDeleteSite, loaded, error, loadSession, selectSite, clearSession }),
+    [user, sites, selectedSite, organizationId, canCreateSite, canDeleteSite, loaded, error, loadSession, selectSite, clearSession]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
