@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import StatCircle from '../../Components/Dashboard/StatCircle';
 import SiteSwitcher from '../../Components/SiteSwitcher';
 import { useSession } from '../../Context/SessionContext';
 import worksiteService from '../../Services/worksiteService';
+import siteService from '../../Services/siteService';
 import { MemberDetail, SiteDetail, SiteStats, TeamSummary } from '../../Types/Worksite';
 import { formatBudget, formatDate, siteStatus } from '../../Utils/siteStatus';
 import { roleLabel } from '../../Utils/roles';
@@ -40,7 +41,7 @@ const percentOf = (count: number, total: number): number => (total > 0 ? Math.ro
 
 const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
   const { chantierName, siteId } = route.params;
-  const { sites, selectSite, canCreateSite } = useSession();
+  const { sites, selectedSite, selectSite, canCreateSite, canDeleteSite, loadSession } = useSession();
   const [switcherVisible, setSwitcherVisible] = useState<boolean>(false);
   const canSwitchSite = sites.length > 1;
   const sessionSite = sites.find(site => site.id === siteId) ?? null;
@@ -51,6 +52,7 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
   const [teams, setTeams] = useState<TeamSummary[]>([]);
   const [members, setMembers] = useState<MemberDetail[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [deleting, setDeleting] = useState<boolean>(false);
 
   const teamStats: TeamStat[] = stats
     ? [
@@ -82,6 +84,36 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
     };
     fetchAll();
   }, [siteId]));
+
+  const confirmDelete = () => {
+    Alert.alert(
+      'Supprimer le chantier',
+      `Voulez-vous vraiment supprimer « ${chantierName} » ? Cette action est définitive.`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Supprimer', style: 'destructive', onPress: handleDelete },
+      ]
+    );
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await siteService.deleteSite(siteId);
+      if (selectedSite?.id === siteId) await selectSite(null);
+      await loadSession();
+      navigation.reset({ index: 0, routes: [{ name: 'DashboardList' }] });
+    } catch (err: any) {
+      const status = err?.response?.status;
+      let message = 'Impossible de supprimer ce chantier pour le moment.';
+      if (status === 403) message = "Votre rôle ne permet pas de supprimer un chantier.";
+      else if (status === 404) message = 'Ce chantier est introuvable, il a peut-être déjà été supprimé.';
+      else if (status === 409 || status === 500) message = 'Ce chantier contient encore des données liées et ne peut pas être supprimé.';
+      Alert.alert('Suppression impossible', message);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const info = detail ?? sessionSite;
   const status = siteStatus(info?.status);
@@ -278,6 +310,19 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
           </TouchableOpacity>
         ))}
 
+        {canDeleteSite && (
+          <TouchableOpacity style={[styles.deleteButton, deleting && styles.deleteDisabled]} onPress={confirmDelete} disabled={deleting}>
+            {deleting ? (
+              <ActivityIndicator color="#ef4444" />
+            ) : (
+              <>
+                <MaterialCommunityIcons name="trash-can-outline" size={20} color="#ef4444" />
+                <Text style={styles.deleteText}>Supprimer le chantier</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
+
       </ScrollView>
     </View>
   );
@@ -327,6 +372,9 @@ const styles = StyleSheet.create({
   linkText: { fontSize: 13, fontWeight: '600', color: '#c2410c' },
   avatar: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   avatarText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13 },
+  deleteButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20, paddingVertical: 14, borderRadius: 12, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#fecaca' },
+  deleteDisabled: { opacity: 0.6 },
+  deleteText: { marginLeft: 8, color: '#ef4444', fontSize: 15, fontWeight: 'bold' },
   progressValue: { fontSize: 11, fontWeight: 'bold', color: '#6366f1', textAlign: 'right' },
   progressBarBg: { height: 6, marginTop: 5, borderRadius: 3, backgroundColor: '#E5E7EB' },
   progressBarFill: { height: '100%', borderRadius: 3, backgroundColor: '#818CF8' },

@@ -33,6 +33,10 @@ const siteService = {
     return response.data;
   },
 
+  deleteSite: async (siteId: string): Promise<void> => {
+    await api.delete(`/sites/${siteId}`);
+  },
+
   createSite: async (payload: CreateSitePayload): Promise<AccessibleSite> => {
     const response = await api.post<AccessibleSite>('/sites', payload);
     return response.data;
