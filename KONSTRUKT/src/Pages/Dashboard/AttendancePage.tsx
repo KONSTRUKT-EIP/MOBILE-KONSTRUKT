@@ -7,6 +7,7 @@ import api from '../../API/Api';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator';
 import { useTheme } from '../../Theme/ThemeContext';
 import { ThemeColors } from '../../Theme/colors';
+import AttendanceDetailModal, { DetailResult } from '../../Components/Attendance/AttendanceDetailModal';
 
 // 1. Définition des types spécifiques à la présence
 type AttendanceStatus = 'present' | 'absent' | 'retard' | 'conge' | 'en-attente';
@@ -24,6 +25,7 @@ interface AttendanceWeekResponse {
   days: string[];
   dates: string[];
   attendances: Record<string, AttendanceStatus[]>;
+  workforceHours?: Record<string, { normalHours: number; overtimeHours: number }[]>;
 }
 
 // Ordre de cycle quand on tape sur un badge, et statut envoyé au backend
@@ -51,6 +53,8 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [hoursData, setHoursData] = useState<Record<string, { normalHours: number; overtimeHours: number }[]>>({});
+  const [detailWorker, setDetailWorker] = useState<AttendanceWorker | null>(null);
 
   const statusConfig: Record<AttendanceStatus, { label: string; bg: string; text: string }> = {
     present: { label: 'Présent', bg: '#e8f5e9', text: '#2e7d32' },
@@ -71,6 +75,7 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
       setDays(weekRes.data.days);
       setDates(weekRes.data.dates);
       setAttendanceData(weekRes.data.attendances);
+      setHoursData(weekRes.data.workforceHours ?? {});
     } catch (err) {
       console.error('Erreur API Attendance:', err);
       Alert.alert('Erreur', 'Impossible de charger les présences.');
@@ -114,19 +119,44 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
     }
   };
 
+  const formatHours = (value: number): string => String(Math.round(value * 100) / 100).replace('.', ',');
+
+  const handleDetailSaved = (result: DetailResult) => {
+    if (!detailWorker) return;
+    const workerId = detailWorker.id;
+    setAttendanceData(prev => {
+      const updated = [...(prev[workerId] || [])];
+      updated[selectedDayIndex] = result.status;
+      return { ...prev, [workerId]: updated };
+    });
+    setHoursData(prev => {
+      const updated = [...(prev[workerId] || [])];
+      updated[selectedDayIndex] = { normalHours: result.normalHours, overtimeHours: result.overtimeHours };
+      return { ...prev, [workerId]: updated };
+    });
+  };
+
   const renderAttendanceCard = ({ item }: { item: AttendanceWorker }) => {
     const statusKey = attendanceData[item.id]?.[selectedDayIndex] || 'en-attente';
     const config = statusConfig[statusKey];
+    const dayHours = hoursData[item.id]?.[selectedDayIndex];
+    const hoursLabel = dayHours && (dayHours.normalHours > 0 || dayHours.overtimeHours > 0)
+      ? `${formatHours(dayHours.normalHours)} h${dayHours.overtimeHours > 0 ? ` + ${formatHours(dayHours.overtimeHours)} h sup.` : ''}`
+      : '';
 
     return (
       <View style={styles.card}>
         <View style={[styles.avatar, { backgroundColor: item.color }]}>
           <Text style={styles.avatarText}>{item.initials}</Text>
         </View>
-        <View style={styles.info}>
+        <TouchableOpacity style={styles.info} onPress={() => setDetailWorker(item)} activeOpacity={0.7}>
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.sub}>{item.specialite}</Text>
-        </View>
+          {hoursLabel ? <Text style={styles.hours}>{hoursLabel}</Text> : null}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setDetailWorker(item)} style={styles.detailButton}>
+          <MaterialCommunityIcons name="note-edit-outline" size={20} color={colors.muted} />
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.badge, { backgroundColor: config.bg }]}
           onPress={() => handleStatusPress(item)}
@@ -189,6 +219,17 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
         }
       />
 
+      <AttendanceDetailModal
+        visible={detailWorker !== null}
+        siteId={siteId}
+        worker={detailWorker}
+        date={dates[selectedDayIndex] ?? ''}
+        dateLabel={`${days[selectedDayIndex] ?? ''}`}
+        currentStatus={detailWorker ? attendanceData[detailWorker.id]?.[selectedDayIndex] || 'en-attente' : 'en-attente'}
+        onClose={() => setDetailWorker(null)}
+        onSaved={handleDetailSaved}
+      />
+
       <View style={[styles.footer, { bottom: tabBarHeight }]}>
         {(Object.entries(statusConfig) as [AttendanceStatus, any][]).map(([key, config]) => (
           <View key={key} style={styles.summaryItem}>
@@ -219,6 +260,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   avatarText: { color: '#FFF', fontWeight: 'bold' },
   info: { flex: 1, marginLeft: 12 },
   name: { fontSize: 15, fontWeight: 'bold', color: colors.text },
+  hours: { fontSize: 12, fontWeight: '600', color: '#c2410c', marginTop: 2 },
+  detailButton: { padding: 8, marginRight: 4 },
   sub: { fontSize: 12, color: colors.muted },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, minWidth: 70, alignItems: 'center' },
   badgeText: { fontSize: 11, fontWeight: 'bold' },
