@@ -1,59 +1,77 @@
-import React, { useMemo, useState } from 'react';
-import { 
-  StyleSheet, View, Text, FlatList, TouchableOpacity, 
-  TextInput, LayoutAnimation, Platform, UIManager 
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  StyleSheet, View, Text, FlatList, TouchableOpacity,
+  TextInput, LayoutAnimation, Platform, UIManager, ActivityIndicator, Alert,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../Theme/ThemeContext';
 import { ThemeColors } from '../../Theme/colors';
-import { DashboardStackParamList } from '../../Navigation/TabNavigator'; // On récupère le typage du Stack
-
-// 1. Définition de l'interface pour un Ouvrier
-interface Worker {
-  id: number;
-  specialite: string;
-  name: string;
-  email: string;
-  dateDebut: string;
-  status: 'En attente' | 'Complete' | 'Annulé' | 'En cours'; // Union type pour la sécurité
-  initials: string;
-  color: string;
-}
+import { useSession } from '../../Context/SessionContext';
+import AddMemberModal from '../../Components/Team/AddMemberModal';
+import worksiteService from '../../Services/worksiteService';
+import teamService from '../../Services/teamService';
+import { MemberDetail, TeamSummary } from '../../Types/Worksite';
+import { formatDate } from '../../Utils/siteStatus';
+import { DashboardStackParamList } from '../../Navigation/TabNavigator';
 
 interface StatusStyle {
   bg: string;
   text: string;
 }
 
-// Configuration pour Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const defaultWorkers: Worker[] = [
-  { id: 1, specialite: 'Menuisier',  name: 'Arrora Gaur',     email: 'arroragaur@gmail.com',     dateDebut: '12 Dec, 2025', status: 'En attente', initials: 'AG', color: '#f97316' },
-  { id: 2, specialite: 'Menuisier',  name: 'James Mullican',  email: 'jamesmullican@gmail.com',  dateDebut: '10 Dec, 2025', status: 'En attente', initials: 'JM', color: '#6366f1' },
-  { id: 3, specialite: 'Architecte', name: 'Robert Bacins',   email: 'robertbacins@gmail.com',   dateDebut: '09 Dec, 2025', status: 'Complete',   initials: 'RB', color: '#10b981' },
-  { id: 4, specialite: 'Carreleur',  name: 'Bethany Jackson', email: 'bethanyjackson@gmail.com', dateDebut: '09 Dec, 2025', status: 'Annulé',     initials: 'BJ', color: '#f43f5e' },
-  { id: 5, specialite: 'Carreleur',  name: 'Anne Jacob',      email: 'annejacob@gmail.com',      dateDebut: '10 Dec, 2025', status: 'Complete',   initials: 'AJ', color: '#8b5cf6' },
-  { id: 7, specialite: 'Maçon',      name: 'James Mullican',  email: 'jamesmullican@gmail.com',  dateDebut: '10 Dec, 2025', status: 'En cours',   initials: 'JM', color: '#6366f1' },
-  { id: 8, specialite: 'Maçon',      name: 'Jhon Deo',        email: 'jhondeo32@gmail.com',      dateDebut: '10 Dec, 2025', status: 'En cours',   initials: 'JD', color: '#0ea5e9' },
-];
-
-// 2. Typage des Props
 type Props = NativeStackScreenProps<DashboardStackParamList, 'TeamList'>;
+
+const getStatusStyle = (status: string): StatusStyle => {
+  switch (status) {
+    case 'Complete': return { bg: '#e8f5e9', text: '#2e7d32' };
+    case 'En attente': return { bg: '#fff3e0', text: '#ef6c00' };
+    case 'Annulé': return { bg: '#ffebee', text: '#c62828' };
+    case 'En cours': return { bg: '#f5f5f5', text: '#616161' };
+    default: return { bg: '#e5e7eb', text: '#374151' };
+  }
+};
 
 const TeamListPage: React.FC<Props> = ({ navigation, route }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  // On récupère les paramètres de navigation (chantierName et siteId)
-  const { chantierName } = route.params; 
-  
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [expandedWorkerId, setExpandedWorkerId] = useState<number | null>(null);
+  const { chantierName, siteId } = route.params;
+  const { canManageTeams } = useSession();
+  const tabBarHeight = useBottomTabBarHeight();
 
-  const toggleExpand = (id: number) => {
+  const [members, setMembers] = useState<MemberDetail[]>([]);
+  const [teams, setTeams] = useState<TeamSummary[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [expandedWorkerId, setExpandedWorkerId] = useState<string | null>(null);
+  const [addVisible, setAddVisible] = useState<boolean>(false);
+
+  const load = useCallback(async () => {
+    setError('');
+    const [membersRes, teamsRes] = await Promise.allSettled([
+      worksiteService.getMembers(siteId),
+      worksiteService.getTeams(siteId),
+    ]);
+    if (membersRes.status === 'fulfilled') setMembers(membersRes.value);
+    else setError("Impossible de charger l'équipe.");
+    setTeams(teamsRes.status === 'fulfilled' ? teamsRes.value : []);
+    setLoading(false);
+  }, [siteId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
+
+  const toggleExpand = (id: string) => {
     LayoutAnimation.configureNext({
       duration: 300,
       create: { type: 'easeInEaseOut', property: 'opacity' },
@@ -62,29 +80,40 @@ const TeamListPage: React.FC<Props> = ({ navigation, route }) => {
     setExpandedWorkerId(expandedWorkerId === id ? null : id);
   };
 
-  const filteredWorkers = defaultWorkers.filter(worker =>
+  const confirmRemove = (member: MemberDetail) => {
+    Alert.alert('Retirer de l\'équipe', `Retirer ${member.name} de l'équipe ?`, [
+      { text: 'Annuler', style: 'cancel' },
+      {
+        text: 'Retirer',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await teamService.removeMember(member.teamId, member.id);
+            setExpandedWorkerId(null);
+            await load();
+          } catch (err: any) {
+            const message = err?.response?.status === 403
+              ? "Votre rôle ne permet pas de retirer un membre."
+              : 'Impossible de retirer ce membre pour le moment.';
+            Alert.alert('Action impossible', message);
+          }
+        },
+      },
+    ]);
+  };
+
+  const filteredWorkers = members.filter(worker =>
     worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     worker.specialite.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // 3. Typage de la fonction de style
-  const getStatusStyle = (status: Worker['status']): StatusStyle => {
-    switch (status) {
-      case 'Complete': return { bg: '#e8f5e9', text: '#2e7d32' };
-      case 'En attente': return { bg: '#fff3e0', text: '#ef6c00' };
-      case 'Annulé': return { bg: '#ffebee', text: '#c62828' };
-      case 'En cours': return { bg: '#f5f5f5', text: '#616161' };
-      default: return { bg: '#e5e7eb', text: '#374151' };
-    }
-  };
-
-  const renderWorker = ({ item }: { item: Worker }) => {
+  const renderWorker = ({ item }: { item: MemberDetail }) => {
     const isExpanded = expandedWorkerId === item.id;
     const statusStyle = getStatusStyle(item.status);
 
     return (
-      <TouchableOpacity 
-        style={[styles.workerCard, isExpanded && styles.workerCardExpanded]} 
+      <TouchableOpacity
+        style={[styles.workerCard, isExpanded && styles.workerCardExpanded]}
         onPress={() => toggleExpand(item.id)}
         activeOpacity={1}
       >
@@ -110,8 +139,14 @@ const TeamListPage: React.FC<Props> = ({ navigation, route }) => {
             </View>
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="calendar-range" size={16} color={colors.textSecondary} />
-              <Text style={styles.detailText}>Début : {item.dateDebut}</Text>
+              <Text style={styles.detailText}>Début : {formatDate(item.dateDebut)}</Text>
             </View>
+            {canManageTeams && (
+              <TouchableOpacity style={styles.removeButton} onPress={() => confirmRemove(item)}>
+                <MaterialCommunityIcons name="account-remove-outline" size={18} color={colors.danger} />
+                <Text style={styles.removeText}>Retirer de l'équipe</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </TouchableOpacity>
@@ -130,31 +165,47 @@ const TeamListPage: React.FC<Props> = ({ navigation, route }) => {
       <View style={styles.searchSection}>
         <View style={styles.searchBar}>
           <MaterialCommunityIcons name="magnify" size={20} color={colors.muted} />
-          <TextInput 
-            placeholder="Chercher un ouvrier..." 
+          <TextInput
+            placeholder="Chercher un ouvrier..."
             style={styles.searchInput}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholderTextColor={colors.muted}
           />
         </View>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+ Nouveau</Text>
-        </TouchableOpacity>
+        {canManageTeams && teams.length > 0 && (
+          <TouchableOpacity style={styles.addButton} onPress={() => setAddVisible(true)}>
+            <Text style={styles.addButtonText}>+ Nouveau</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      <FlatList
-        data={filteredWorkers}
-        keyExtractor={item => item.id.toString()}
-        renderItem={renderWorker}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
+      {loading ? (
+        <ActivityIndicator size="large" color="#c2410c" style={styles.loader} />
+      ) : (
+        <FlatList
+          data={filteredWorkers}
+          keyExtractor={item => item.id}
+          renderItem={renderWorker}
+          contentContainerStyle={[styles.listContent, { paddingBottom: tabBarHeight + 40 }]}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>{error || (searchQuery ? 'Aucun ouvrier trouvé.' : "Aucun membre d'équipe sur ce chantier.")}</Text>
+          }
+        />
+      )}
+
+      <AddMemberModal
+        visible={addVisible}
+        teams={teams}
+        memberIds={members.map(member => member.id)}
+        onClose={() => setAddVisible(false)}
+        onAdded={load}
       />
     </View>
   );
 };
 
-// ... Styles identiques à ta version JS
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: { flexDirection: 'row', alignItems: 'center', padding: 15, backgroundColor: colors.background },
@@ -179,6 +230,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   detailsSection: { paddingHorizontal: 15, paddingBottom: 15, backgroundColor: colors.background },
   divider: { height: 1, marginBottom: 12, backgroundColor: colors.border },
   detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  loader: { marginTop: 60 },
+  emptyText: { textAlign: 'center', color: colors.muted, marginTop: 40, fontSize: 14 },
+  removeButton: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', marginTop: 8, paddingVertical: 6 },
+  removeText: { marginLeft: 6, fontSize: 13, fontWeight: '600', color: colors.danger },
   detailText: { fontSize: 13, color: colors.textSecondary, marginLeft: 10 },
 });
 
