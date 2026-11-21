@@ -19,10 +19,21 @@ export interface MemberDetail {
   id: string;
   teamId: string;
   name: string;
+  email: string;
+  dateDebut: string;
   specialite: string;
   status: string;
   initials: string;
   color: string;
+}
+
+export interface OrgUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  isActive: boolean;
 }
 
 export interface SiteDetail {
