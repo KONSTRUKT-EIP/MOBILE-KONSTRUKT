@@ -25,7 +25,7 @@ import TradeDashboard from '../Pages/Dashboard/TradeDashboard';
 // 1. Types pour le Stack du Dashboard
 export type DashboardStackParamList = {
   DashboardList: undefined;
-  CreateSite: undefined;
+  CreateSite: { siteId?: string } | undefined;
   JobsiteHub: { chantierName: string; siteId: string };
   TradeDashboard: { chantierName: string; category: string };
   DashboardDetail: { chantierName: string; siteId: string };

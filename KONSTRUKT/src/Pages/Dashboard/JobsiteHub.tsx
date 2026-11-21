@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import api from '../../API/Api';
 import StatCircle from '../../Components/Dashboard/StatCircle';
 import SiteSwitcher from '../../Components/SiteSwitcher';
@@ -60,7 +61,7 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
       ]
     : [];
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     const fetchAll = async () => {
       setLoading(true);
       const [summaryRes, detailRes, statsRes, teamsRes, membersRes] = await Promise.allSettled([
@@ -80,7 +81,7 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
       setLoading(false);
     };
     fetchAll();
-  }, [siteId]);
+  }, [siteId]));
 
   const info = detail ?? sessionSite;
   const status = siteStatus(info?.status);
@@ -134,8 +135,15 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.whiteCard}>
             <View style={styles.infoHeader}>
               <Text style={styles.sectionTitle}>Informations</Text>
-              <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
-                <Text style={[styles.statusBadgeText, { color: status.text }]}>{status.label}</Text>
+              <View style={styles.infoActions}>
+                <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
+                  <Text style={[styles.statusBadgeText, { color: status.text }]}>{status.label}</Text>
+                </View>
+                {canCreateSite && (
+                  <TouchableOpacity onPress={() => navigation.navigate('CreateSite', { siteId })} style={styles.editButton}>
+                    <MaterialCommunityIcons name="pencil-outline" size={20} color="#c2410c" />
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
             <View style={styles.infoRow}>
@@ -302,7 +310,9 @@ const styles = StyleSheet.create({
   cardDesc: { fontSize: 12, color: '#6B7280', marginTop: 2 },
   cardRight: { flex: 1, paddingHorizontal: 10 },
   infoHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  statusBadge: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3, marginBottom: 14 },
+  infoActions: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
+  editButton: { marginLeft: 10, padding: 2 },
+  statusBadge: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
   statusBadgeText: { fontSize: 12, fontWeight: 'bold' },
   infoRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   infoRowLast: { borderBottomWidth: 0 },

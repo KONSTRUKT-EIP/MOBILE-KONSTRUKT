@@ -15,6 +15,8 @@ export interface CreateSitePayload {
   budget: number;
 }
 
+export type UpdateSitePayload = Partial<Omit<CreateSitePayload, 'organizationId'>>;
+
 export type SiteProgressMap = Record<string, number | null>;
 
 const siteService = {
@@ -24,6 +26,11 @@ const siteService = {
       map[site.id] = site.progressPct ?? null;
       return map;
     }, {});
+  },
+
+  updateSite: async (siteId: string, payload: UpdateSitePayload): Promise<AccessibleSite> => {
+    const response = await api.put<AccessibleSite>(`/sites/${siteId}`, payload);
+    return response.data;
   },
 
   createSite: async (payload: CreateSitePayload): Promise<AccessibleSite> => {
