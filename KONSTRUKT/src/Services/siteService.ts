@@ -17,7 +17,17 @@ export interface CreateSitePayload {
 
 export type UpdateSitePayload = Partial<Omit<CreateSitePayload, 'organizationId'>>;
 
+export type SiteProgressMap = Record<string, number | null>;
+
 const siteService = {
+  getProgress: async (): Promise<SiteProgressMap> => {
+    const response = await api.get<{ id: string; progressPct?: number | null }[]>('/sites');
+    return response.data.reduce<SiteProgressMap>((map, site) => {
+      map[site.id] = site.progressPct ?? null;
+      return map;
+    }, {});
+  },
+
   updateSite: async (siteId: string, payload: UpdateSitePayload): Promise<AccessibleSite> => {
     const response = await api.put<AccessibleSite>(`/sites/${siteId}`, payload);
     return response.data;
