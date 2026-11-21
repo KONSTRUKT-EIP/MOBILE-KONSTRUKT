@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../../Navigation/TabNavigator'; // Import du type des onglets
 import { useSession } from '../../Context/SessionContext';
+import siteService, { SiteProgressMap } from '../../Services/siteService';
 
 // 1. Typage des Props pour l'onglet Chantiers
 type Props = BottomTabScreenProps<TabParamList, 'Chantiers'>;
@@ -16,12 +17,48 @@ const STATUS_LABELS: Record<string, { label: string; bg: string; text: string }>
   ANNULE: { label: 'Annulé', bg: '#fee2e2', text: '#b91c1c' },
 };
 
+type SortKey = 'recent' | 'name' | 'status';
+
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: 'recent', label: 'Récents' },
+  { key: 'name', label: 'Nom' },
+  { key: 'status', label: 'Statut' },
+];
+
+const STATUS_ORDER = ['EN_COURS', 'PLANIFIE', 'SUSPENDU', 'TERMINE', 'ANNULE'];
+
+const normalize = (value: string): string =>
+  value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
 const WorksitesPage: React.FC<Props> = ({ navigation }) => {
   const { sites, loaded, error, loadSession, selectSite, canCreateSite } = useSession();
+  const [query, setQuery] = useState<string>('');
+  const [sortKey, setSortKey] = useState<SortKey>('recent');
+  const [progress, setProgress] = useState<SiteProgressMap>({});
 
   useEffect(() => {
     if (!loaded) loadSession();
   }, [loaded, loadSession]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    siteService
+      .getProgress()
+      .then(setProgress)
+      .catch(() => setProgress({}));
+  }, [loaded, sites]);
+
+  const visibleSites = useMemo(() => {
+    const needle = normalize(query);
+    const filtered = needle
+      ? sites.filter(site => normalize(`${site.name} ${site.city}`).includes(needle))
+      : sites;
+    if (sortKey === 'name') return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    if (sortKey === 'status') {
+      return [...filtered].sort((a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status));
+    }
+    return filtered;
+  }, [sites, query, sortKey]);
 
   return (
     <View style={styles.container}>
@@ -44,6 +81,40 @@ const WorksitesPage: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
         )}
 
+        {loaded && sites.length > 0 && (
+          <View style={styles.searchBlock}>
+            <View style={styles.searchBox}>
+              <MaterialCommunityIcons name="magnify" size={20} color="#9ca3af" />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Rechercher un chantier ou une ville…"
+                placeholderTextColor="#9ca3af"
+                value={query}
+                onChangeText={setQuery}
+                autoCorrect={false}
+                returnKeyType="search"
+              />
+              {query.length > 0 && (
+                <TouchableOpacity onPress={() => setQuery('')}>
+                  <MaterialCommunityIcons name="close-circle" size={18} color="#9ca3af" />
+                </TouchableOpacity>
+              )}
+            </View>
+            <View style={styles.sortRow}>
+              <Text style={styles.sortLabel}>Trier :</Text>
+              {SORT_OPTIONS.map(option => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[styles.sortChip, sortKey === option.key && styles.sortChipActive]}
+                  onPress={() => setSortKey(option.key)}
+                >
+                  <Text style={[styles.sortChipText, sortKey === option.key && styles.sortChipTextActive]}>{option.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
         {!loaded ? (
           <ActivityIndicator size="large" color="#c2410c" style={styles.loader} />
         ) : error ? (
@@ -54,9 +125,16 @@ const WorksitesPage: React.FC<Props> = ({ navigation }) => {
             <Text style={styles.emptyTitle}>Aucun chantier</Text>
             <Text style={styles.emptyText}>Aucun chantier ne vous est affecté pour le moment.</Text>
           </View>
+        ) : visibleSites.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <MaterialCommunityIcons name="magnify-close" size={56} color="#e5e7eb" />
+            <Text style={styles.emptyTitle}>Aucun chantier trouvé</Text>
+            <Text style={styles.emptyText}>Essayez un autre nom ou une autre ville.</Text>
+          </View>
         ) : (
-          sites.map(site => {
+          visibleSites.map(site => {
             const status = STATUS_LABELS[site.status];
+            const percent = progress[site.id];
             return (
               <TouchableOpacity
                 key={site.id}
@@ -76,6 +154,14 @@ const WorksitesPage: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.siteInfo}>
                   <Text style={styles.siteName}>{site.name}</Text>
                   <Text style={styles.siteLocation}>{site.city}, {site.postalCode}</Text>
+                  {percent !== undefined && percent !== null && (
+                    <View style={styles.progressRow}>
+                      <View style={styles.progressTrack}>
+                        <View style={[styles.progressFill, { width: `${Math.min(Math.max(percent, 0), 100)}%` }]} />
+                      </View>
+                      <Text style={styles.progressText}>{percent}%</Text>
+                    </View>
+                  )}
                 </View>
                 {status && (
                   <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
@@ -103,6 +189,19 @@ const styles = StyleSheet.create({
   createBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#c2410c', borderRadius: 999, paddingVertical: 13, paddingHorizontal: 24, marginBottom: 24, alignSelf: 'flex-start', elevation: 2 },
   createBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 14, marginLeft: 6 },
   loader: { marginTop: 40 },
+  searchBlock: { marginBottom: 16 },
+  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', paddingHorizontal: 12 },
+  searchInput: { flex: 1, paddingVertical: 12, marginLeft: 8, fontSize: 14, color: '#111827' },
+  sortRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
+  sortLabel: { fontSize: 13, color: '#6b7280', marginRight: 8 },
+  sortChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e5e7eb', marginRight: 6 },
+  sortChipActive: { backgroundColor: '#c2410c', borderColor: '#c2410c' },
+  sortChipText: { fontSize: 12, fontWeight: '600', color: '#374151' },
+  sortChipTextActive: { color: '#ffffff' },
+  progressRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
+  progressTrack: { flex: 1, height: 6, borderRadius: 3, backgroundColor: '#e5e7eb', overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 3, backgroundColor: '#c2410c' },
+  progressText: { marginLeft: 8, fontSize: 11, fontWeight: 'bold', color: '#374151' },
   siteCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 16, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
   siteIcon: { width: 46, height: 46, borderRadius: 12, backgroundColor: '#fff7ed', justifyContent: 'center', alignItems: 'center' },
   siteInfo: { flex: 1, marginLeft: 12 },
