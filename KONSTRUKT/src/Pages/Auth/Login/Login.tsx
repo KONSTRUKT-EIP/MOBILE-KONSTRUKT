@@ -111,6 +111,10 @@ const LoginPage: React.FC<Props> = ({ navigation }) => {
           <TouchableOpacity style={styles.forgotPasswordContainer}>
             <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.invitationContainer} onPress={() => navigation.navigate('AcceptInvitation')}>
+            <Text style={styles.invitationText}>J'ai reçu une invitation</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -132,6 +136,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   errorText: { color: '#ef4444', fontSize: 13, fontWeight: '500', marginBottom: 12, textAlign: 'center' },
   forgotPasswordContainer: { marginTop: 14, alignItems: 'center' },
   forgotPasswordText: { color: colors.muted, fontSize: 14 },
+  invitationContainer: { marginTop: 18, alignItems: 'center' },
+  invitationText: { color: '#c2410c', fontSize: 14, fontWeight: 'bold' },
 });
 
 export default LoginPage;

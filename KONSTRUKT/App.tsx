@@ -7,6 +7,7 @@ import LoginPage from './src/Pages/Auth/Login/Login';
 import TabNavigator from './src/Navigation/TabNavigator';
 import WelcomePage from './src/Pages/Welcome/Welcome';
 import SettingsPage from './src/Pages/Settings/Settings';
+import AcceptInvitationPage from './src/Pages/Auth/AcceptInvitation/AcceptInvitation';
 import { navigationRef } from './src/Navigation/navigationRef';
 import { SessionProvider } from './src/Context/SessionContext';
 import { ThemeProvider, useTheme } from './src/Theme/ThemeContext';
@@ -15,6 +16,7 @@ import { ThemeProvider, useTheme } from './src/Theme/ThemeContext';
 export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
+  AcceptInvitation: { token?: string } | undefined;
   Main: undefined; // Le TabNavigator
   Settings: undefined;
 };
@@ -42,6 +44,7 @@ function AppNavigation() {
       <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Welcome" component={WelcomePage} />
         <Stack.Screen name="Login" component={LoginPage} />
+        <Stack.Screen name="AcceptInvitation" component={AcceptInvitationPage} />
         <Stack.Screen name="Main" component={TabNavigator} />
         <Stack.Screen name="Settings" component={SettingsPage} />
       </Stack.Navigator>
