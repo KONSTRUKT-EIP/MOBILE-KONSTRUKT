@@ -17,6 +17,10 @@ const authService = {
     return response.data;
   },
 
+  changePassword: async (oldPassword: string, newPassword: string): Promise<void> => {
+    await api.patch('/auth/change-password', { oldPassword, newPassword });
+  },
+
   logout: async (): Promise<void> => {
     await api.post('/auth/logout');
   },

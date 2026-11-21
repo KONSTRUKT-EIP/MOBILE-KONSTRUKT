@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView, ActivityIndicator, Keyboard } from 'react-native';
 import api from '../../API/Api';
 import WeatherSearch from './WeatherSearch';
 import CurrentWeatherCard from './CurrentWeather';
 import ForecastSection from './ForecastWeather';
 import { WeatherData, WeatherInfo } from '../../Types/Weather';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 /**
  * Page principale de la météo
  * Gère l'état global des données météo et la recherche par ville.
  */
 const WeatherPage: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   // États typés pour la gestion de la ville et des données
   const [city, setCity] = useState<string>("Paris");
   const [searchCity, setSearchCity] = useState<string>("Paris");
@@ -130,10 +134,10 @@ const WeatherPage: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
   },
   loader: {
     flex: 1,

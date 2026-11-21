@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import api from '../../API/Api';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 // 1. Définition des types spécifiques à la présence
 type AttendanceStatus = 'present' | 'absent' | 'retard' | 'conge' | 'en-attente';
@@ -37,6 +39,8 @@ const STATUS_TO_BACKEND: Record<AttendanceStatus, string> = {
 type Props = NativeStackScreenProps<DashboardStackParamList, 'Attendance'>;
 
 const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { chantierName, siteId } = route.params;
   const tabBarHeight = useBottomTabBarHeight();
 
@@ -198,31 +202,31 @@ const AttendancePage: React.FC<Props> = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f4f6' },
-  header: { flexDirection: 'row', alignItems: 'center', padding: 15, backgroundColor: '#f3f4f6' },
-  headerTitle: { marginLeft: 10, fontSize: 20, fontWeight: 'bold', color: '#111827' },
-  selectorContainer: { paddingVertical: 12, backgroundColor: '#ffffff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  dayButton: { paddingHorizontal: 18, paddingVertical: 8, marginHorizontal: 5, borderRadius: 999, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  loader: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 15, backgroundColor: colors.background },
+  headerTitle: { marginLeft: 10, fontSize: 20, fontWeight: 'bold', color: colors.text },
+  selectorContainer: { paddingVertical: 12, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
+  dayButton: { paddingHorizontal: 18, paddingVertical: 8, marginHorizontal: 5, borderRadius: 999, backgroundColor: colors.background },
   dayButtonActive: { backgroundColor: '#c2410c' },
-  dayText: { fontSize: 13, fontWeight: 'bold', color: '#6b7280' },
+  dayText: { fontSize: 13, fontWeight: 'bold', color: colors.muted },
   dayTextActive: { color: '#ffffff' },
   list: { padding: 15, paddingBottom: 100 },
-  emptyText: { textAlign: 'center', color: '#6b7280', marginTop: 40 },
-  card: { flexDirection: 'row', alignItems: 'center', padding: 15, marginBottom: 10, backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  emptyText: { textAlign: 'center', color: colors.muted, marginTop: 40 },
+  card: { flexDirection: 'row', alignItems: 'center', padding: 15, marginBottom: 10, backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   avatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   avatarText: { color: '#FFF', fontWeight: 'bold' },
   info: { flex: 1, marginLeft: 12 },
-  name: { fontSize: 15, fontWeight: 'bold', color: '#111827' },
-  sub: { fontSize: 12, color: '#6b7280' },
+  name: { fontSize: 15, fontWeight: 'bold', color: colors.text },
+  sub: { fontSize: 12, color: colors.muted },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, minWidth: 70, alignItems: 'center' },
   badgeText: { fontSize: 11, fontWeight: 'bold' },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 15, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#FFF', borderTopWidth: 1, borderTopColor: '#EEE' },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 15, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border },
   summaryItem: { flexDirection: 'row', alignItems: 'center' },
   dot: { width: 8, height: 8, borderRadius: 4, marginRight: 5 },
-  summaryLabel: { fontSize: 10, color: '#6b7280', marginRight: 4 },
-  summaryCount: { fontSize: 12, fontWeight: 'bold', color: '#111827' },
+  summaryLabel: { fontSize: 10, color: colors.muted, marginRight: 4 },
+  summaryCount: { fontSize: 12, fontWeight: 'bold', color: colors.text },
 });
 
 export default AttendancePage;

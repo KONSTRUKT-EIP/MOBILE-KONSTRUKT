@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -10,6 +10,8 @@ import { RootStackParamList } from '../../../../App';
 import { useSession } from '../../../Context/SessionContext';
 import invitationService, { InvitationError, InvitationInfo } from '../../../Services/invitationService';
 import { extractInvitationToken } from '../../../Utils/invitation';
+import { useTheme } from '../../../Theme/ThemeContext';
+import { ThemeColors } from '../../../Theme/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AcceptInvitation'>;
 
@@ -26,6 +28,8 @@ const ROLE_LABELS: Record<string, string> = {
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).+$/;
 
 const AcceptInvitation: React.FC<Props> = ({ navigation, route }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { loadSession } = useSession();
 
   const [phase, setPhase] = useState<Phase>(route.params?.token ? 'loading' : 'input');
@@ -151,7 +155,7 @@ const AcceptInvitation: React.FC<Props> = ({ navigation, route }) => {
             <TextInput
               style={styles.input}
               placeholder="Lien ou code d'invitation"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.placeholder}
               value={pasted}
               onChangeText={text => { setPasted(text); setError(''); }}
               autoCapitalize="none"
@@ -212,16 +216,16 @@ const AcceptInvitation: React.FC<Props> = ({ navigation, route }) => {
             <TextInput style={[styles.input, styles.inputDisabled]} value={invitation.email} editable={false} />
 
             <Text style={styles.label}>Prénom</Text>
-            <TextInput style={styles.input} placeholder="Prénom" placeholderTextColor="#9ca3af" value={firstName} onChangeText={setFirstName} />
+            <TextInput style={styles.input} placeholder="Prénom" placeholderTextColor={colors.placeholder} value={firstName} onChangeText={setFirstName} />
 
             <Text style={styles.label}>Nom</Text>
-            <TextInput style={styles.input} placeholder="Nom" placeholderTextColor="#9ca3af" value={lastName} onChangeText={setLastName} />
+            <TextInput style={styles.input} placeholder="Nom" placeholderTextColor={colors.placeholder} value={lastName} onChangeText={setLastName} />
 
             <Text style={styles.label}>Mot de passe</Text>
-            <TextInput style={styles.input} placeholder="Mot de passe" placeholderTextColor="#9ca3af" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
+            <TextInput style={styles.input} placeholder="Mot de passe" placeholderTextColor={colors.placeholder} value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
 
             <Text style={styles.label}>Confirmer le mot de passe</Text>
-            <TextInput style={styles.input} placeholder="Confirmer" placeholderTextColor="#9ca3af" value={confirm} onChangeText={setConfirm} secureTextEntry autoCapitalize="none" />
+            <TextInput style={styles.input} placeholder="Confirmer" placeholderTextColor={colors.placeholder} value={confirm} onChangeText={setConfirm} secureTextEntry autoCapitalize="none" />
 
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -238,25 +242,25 @@ const AcceptInvitation: React.FC<Props> = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, paddingTop: 60, paddingBottom: 60 },
   screenTitle: { fontSize: 28, fontWeight: 'bold', color: '#c2410c', textAlign: 'center', marginBottom: 20 },
-  card: { backgroundColor: '#ffffff', borderRadius: 16, padding: 22, borderWidth: 1, borderColor: '#f3f4f6', elevation: 3 },
+  card: { backgroundColor: colors.surface, borderRadius: 16, padding: 22, borderWidth: 1, borderColor: colors.border, elevation: 3 },
   statusIcon: { alignSelf: 'center', marginBottom: 12 },
-  cardTitle: { fontSize: 20, fontWeight: 'bold', color: '#111827', textAlign: 'center', marginBottom: 10 },
+  cardTitle: { fontSize: 20, fontWeight: 'bold', color: colors.text, textAlign: 'center', marginBottom: 10 },
   cardText: { fontSize: 14, color: '#4b5563', textAlign: 'center', lineHeight: 21, marginBottom: 14 },
-  bold: { fontWeight: 'bold', color: '#111827' },
-  label: { color: '#374151', fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 8 },
-  input: { backgroundColor: '#f3f4f6', color: '#111827', padding: 13, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', fontSize: 14, marginBottom: 6 },
-  inputDisabled: { color: '#6b7280' },
+  bold: { fontWeight: 'bold', color: colors.text },
+  label: { color: colors.textSecondary, fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 8 },
+  input: { backgroundColor: colors.background, color: colors.text, padding: 13, borderRadius: 8, borderWidth: 1, borderColor: colors.border, fontSize: 14, marginBottom: 6 },
+  inputDisabled: { color: colors.muted },
   errorText: { color: '#ef4444', fontSize: 13, fontWeight: '500', marginVertical: 10, textAlign: 'center' },
   primaryButton: { backgroundColor: '#c2410c', paddingVertical: 15, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
   primaryText: { color: '#ffffff', fontSize: 15, fontWeight: 'bold' },
-  secondaryButton: { paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 10, backgroundColor: '#f3f4f6' },
-  secondaryText: { color: '#374151', fontSize: 14, fontWeight: 'bold' },
+  secondaryButton: { paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 10, backgroundColor: colors.background },
+  secondaryText: { color: colors.textSecondary, fontSize: 14, fontWeight: 'bold' },
   linkButton: { marginTop: 14, alignItems: 'center' },
-  linkText: { color: '#6b7280', fontSize: 14 },
+  linkText: { color: colors.muted, fontSize: 14 },
   disabled: { opacity: 0.6 },
 });
 

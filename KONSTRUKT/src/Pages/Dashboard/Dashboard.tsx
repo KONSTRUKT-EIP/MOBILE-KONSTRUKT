@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import StatCircle from '../../Components/Dashboard/StatCircle';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 interface AttendanceStat {
   id: number;
@@ -17,6 +19,8 @@ interface AttendanceStat {
 type Props = NativeStackScreenProps<DashboardStackParamList, 'DashboardDetail'>;
 
 const DashboardPage: React.FC<Props> = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { chantierName, siteId } = route.params;
   const [userName, setUserName] = useState<string>('Utilisateur');
 
@@ -94,22 +98,22 @@ const DashboardPage: React.FC<Props> = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, paddingBottom: 110 },
   backButton: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, marginLeft: -5 },
   backText: { fontSize: 16, fontWeight: '600', color: '#c2410c' },
   welcomeHeader: { marginBottom: 20 },
-  welcomeText: { fontSize: 28, fontWeight: 'bold', color: '#111827' },
-  subtitle: { fontSize: 14, color: '#6b7280', marginTop: 4 },
-  whiteCard: { backgroundColor: '#ffffff', borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#111827', marginBottom: 15 },
+  welcomeText: { fontSize: 28, fontWeight: 'bold', color: colors.text },
+  subtitle: { fontSize: 14, color: colors.muted, marginTop: 4 },
+  whiteCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: colors.border, elevation: 2 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text, marginBottom: 15 },
   horizontalRow: { flexDirection: 'row' },
   actionGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  actionCard: { width: '48%', padding: 20, alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  actionCard: { width: '48%', padding: 20, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   iconCircle: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  actionLabel: { fontSize: 16, fontWeight: 'bold', color: '#111827' },
-  actionSub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  actionLabel: { fontSize: 16, fontWeight: 'bold', color: colors.text },
+  actionSub: { fontSize: 12, color: colors.muted, marginTop: 2 },
 });
 
 export default DashboardPage;

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../Theme/ThemeContext';
+import { ThemeColors } from '../Theme/colors';
 
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - 60) / 2;
@@ -14,6 +16,8 @@ interface MenuCardProps {
 }
 
 const MenuCard: React.FC<MenuCardProps> = ({ title, icon, color, onPress }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <TouchableOpacity 
       style={[styles.card, { backgroundColor: color }]} 
@@ -29,7 +33,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ title, icon, color, onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     width: COLUMN_WIDTH,
     height: 140,

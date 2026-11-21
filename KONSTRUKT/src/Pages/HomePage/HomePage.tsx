@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../../Navigation/TabNavigator'; // On récupère le typage des onglets
 import MenuCard from '../../Components/MenuCard';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 // 1. Interface pour les éléments du menu
 interface MenuItem {
@@ -18,6 +20,8 @@ interface MenuItem {
 type Props = BottomTabScreenProps<TabParamList>;
 
 const HomePage: React.FC<Props> = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   
   const menuItems: MenuItem[] = [
     { id: 'dash', title: 'Dashboard', icon: 'view-dashboard', color: '#c2410c' },
@@ -66,10 +70,10 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
   },
   scrollContainer: {
     padding: 20,
@@ -80,17 +84,17 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 18,
-    color: '#6b7280',
+    color: colors.muted,
   },
   brandText: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#9ca3af',
+    color: colors.placeholder,
     letterSpacing: 1.2,
     marginBottom: 20,
   },

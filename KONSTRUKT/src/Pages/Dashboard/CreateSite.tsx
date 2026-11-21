@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import {
   StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -9,6 +9,8 @@ import { DashboardStackParamList } from '../../Navigation/TabNavigator';
 import { useSession } from '../../Context/SessionContext';
 import siteService, { SiteStatus } from '../../Services/siteService';
 import worksiteService from '../../Services/worksiteService';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 type Props = NativeStackScreenProps<DashboardStackParamList, 'CreateSite'>;
 
@@ -29,6 +31,8 @@ const isValidDate = (value: string): boolean => {
 const todayIso = (): string => new Date().toISOString().slice(0, 10);
 
 const CreateSite: React.FC<Props> = ({ navigation, route }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { organizationId, loadSession, selectSite } = useSession();
   const editingId = route.params?.siteId;
   const isEditing = !!editingId;
@@ -144,30 +148,30 @@ const CreateSite: React.FC<Props> = ({ navigation, route }) => {
       ) : (
       <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
         <Text style={styles.label}>Nom du chantier</Text>
-        <TextInput style={styles.input} placeholder="Ex : Tour Horizon" placeholderTextColor="#9ca3af" value={name} onChangeText={setName} />
+        <TextInput style={styles.input} placeholder="Ex : Tour Horizon" placeholderTextColor={colors.placeholder} value={name} onChangeText={setName} />
 
         <Text style={styles.label}>Adresse</Text>
-        <TextInput style={styles.input} placeholder="Ex : 12 rue de la Paix" placeholderTextColor="#9ca3af" value={address} onChangeText={setAddress} />
+        <TextInput style={styles.input} placeholder="Ex : 12 rue de la Paix" placeholderTextColor={colors.placeholder} value={address} onChangeText={setAddress} />
 
         <View style={styles.row}>
           <View style={styles.half}>
             <Text style={styles.label}>Ville</Text>
-            <TextInput style={styles.input} placeholder="Ex : Paris" placeholderTextColor="#9ca3af" value={city} onChangeText={setCity} />
+            <TextInput style={styles.input} placeholder="Ex : Paris" placeholderTextColor={colors.placeholder} value={city} onChangeText={setCity} />
           </View>
           <View style={styles.half}>
             <Text style={styles.label}>Code postal</Text>
-            <TextInput style={styles.input} placeholder="Ex : 75012" placeholderTextColor="#9ca3af" value={postalCode} onChangeText={setPostalCode} keyboardType="number-pad" />
+            <TextInput style={styles.input} placeholder="Ex : 75012" placeholderTextColor={colors.placeholder} value={postalCode} onChangeText={setPostalCode} keyboardType="number-pad" />
           </View>
         </View>
 
         <View style={styles.row}>
           <View style={styles.half}>
             <Text style={styles.label}>Date de début</Text>
-            <TextInput style={styles.input} placeholder="AAAA-MM-JJ" placeholderTextColor="#9ca3af" value={startDate} onChangeText={setStartDate} keyboardType="numbers-and-punctuation" autoCapitalize="none" />
+            <TextInput style={styles.input} placeholder="AAAA-MM-JJ" placeholderTextColor={colors.placeholder} value={startDate} onChangeText={setStartDate} keyboardType="numbers-and-punctuation" autoCapitalize="none" />
           </View>
           <View style={styles.half}>
             <Text style={styles.label}>Date de fin</Text>
-            <TextInput style={styles.input} placeholder="AAAA-MM-JJ" placeholderTextColor="#9ca3af" value={endDate} onChangeText={setEndDate} keyboardType="numbers-and-punctuation" autoCapitalize="none" />
+            <TextInput style={styles.input} placeholder="AAAA-MM-JJ" placeholderTextColor={colors.placeholder} value={endDate} onChangeText={setEndDate} keyboardType="numbers-and-punctuation" autoCapitalize="none" />
           </View>
         </View>
 
@@ -185,7 +189,7 @@ const CreateSite: React.FC<Props> = ({ navigation, route }) => {
         </View>
 
         <Text style={styles.label}>Budget (€)</Text>
-        <TextInput style={styles.input} placeholder="Ex : 500000" placeholderTextColor="#9ca3af" value={budget} onChangeText={setBudget} keyboardType="decimal-pad" />
+        <TextInput style={styles.input} placeholder="Ex : 500000" placeholderTextColor={colors.placeholder} value={budget} onChangeText={setBudget} keyboardType="decimal-pad" />
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -203,26 +207,26 @@ const CreateSite: React.FC<Props> = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingBottom: 8 },
   backButton: { marginRight: 6, marginLeft: -8 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
+  title: { fontSize: 24, fontWeight: 'bold', color: colors.text },
   loader: { marginTop: 60 },
   form: { padding: 16, paddingBottom: 140 },
-  label: { color: '#374151', fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 10 },
-  input: { backgroundColor: '#ffffff', color: '#111827', padding: 13, borderRadius: 10, borderWidth: 1, borderColor: '#e5e7eb', fontSize: 14 },
+  label: { color: colors.textSecondary, fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 10 },
+  input: { backgroundColor: colors.surface, color: colors.text, padding: 13, borderRadius: 10, borderWidth: 1, borderColor: colors.border, fontSize: 14 },
   row: { flexDirection: 'row', gap: 12 },
   half: { flex: 1 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e5e7eb' },
+  chip: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   chipActive: { backgroundColor: '#c2410c', borderColor: '#c2410c' },
-  chipText: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
+  chipText: { fontSize: 13, fontWeight: '600', color: colors.muted },
   chipTextActive: { color: '#ffffff' },
   errorText: { color: '#ef4444', fontSize: 13, fontWeight: '500', marginTop: 14, textAlign: 'center' },
   actions: { flexDirection: 'row', gap: 12, marginTop: 24 },
-  cancelButton: { flex: 1, paddingVertical: 15, borderRadius: 12, alignItems: 'center', backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e5e7eb' },
-  cancelText: { fontSize: 15, fontWeight: 'bold', color: '#374151' },
+  cancelButton: { flex: 1, paddingVertical: 15, borderRadius: 12, alignItems: 'center', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  cancelText: { fontSize: 15, fontWeight: 'bold', color: colors.textSecondary },
   submitButton: { flex: 1, paddingVertical: 15, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c2410c' },
   submitDisabled: { opacity: 0.6 },
   submitText: { fontSize: 15, fontWeight: 'bold', color: '#ffffff' },

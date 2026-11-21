@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 interface StatCircleProps {
   percentage: number;
@@ -9,6 +11,8 @@ interface StatCircleProps {
 }
 
 const StatCircle: React.FC<StatCircleProps> = ({ percentage, color, label }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const radius = 35;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
@@ -35,13 +39,13 @@ const StatCircle: React.FC<StatCircleProps> = ({ percentage, color, label }) => 
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { alignItems: 'center', marginHorizontal: 10 },
   svgContainer: { position: 'relative', width: 80, height: 80, justifyContent: 'center', alignItems: 'center' },
   svg: { transform: [{ rotate: '-90deg' }] },
   textOverlay: { position: 'absolute' },
-  percentageText: { fontSize: 14, fontWeight: 'bold', color: '#111827' },
-  label: { marginTop: 8, fontSize: 12, fontWeight: '600', color: '#6b7280' },
+  percentageText: { fontSize: 14, fontWeight: 'bold', color: colors.text },
+  label: { marginTop: 8, fontSize: 12, fontWeight: '600', color: colors.muted },
 });
 
 export default StatCircle;

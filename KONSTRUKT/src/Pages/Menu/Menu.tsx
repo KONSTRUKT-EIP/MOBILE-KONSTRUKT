@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 import { TabParamList } from '../../Navigation/TabNavigator'; // On importe le typage des onglets
 
 // 1. Définition de l'interface pour les options du menu
@@ -17,6 +19,8 @@ interface MenuOption {
 type Props = BottomTabScreenProps<TabParamList, any>; 
 
 const MoreMenuPage: React.FC<Props> = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   // Correction de l'encodage : "Ã‰quipe" devient "Équipe"
   const menuOptions: MenuOption[] = [
     { id: 'msg', title: 'Messagerie', icon: 'message-text-outline', color: '#c2410c' },
@@ -51,10 +55,10 @@ const MoreMenuPage: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   header: {
     padding: 20,
@@ -64,12 +68,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.text,
   },
   menuLabel: {
     flex: 1,
     fontSize: 16,
-    color: '#111827',
+    color: colors.text,
     fontWeight: '500',
   },
   menuList: {

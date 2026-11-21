@@ -5,6 +5,8 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../../Navigation/TabNavigator'; // Import du type des onglets
 import { useSession } from '../../Context/SessionContext';
 import siteService, { SiteProgressMap } from '../../Services/siteService';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 // 1. Typage des Props pour l'onglet Chantiers
 type Props = BottomTabScreenProps<TabParamList, 'Chantiers'>;
@@ -31,6 +33,8 @@ const normalize = (value: string): string =>
   value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
 const WorksitesPage: React.FC<Props> = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { sites, loaded, error, loadSession, selectSite, canCreateSite } = useSession();
   const [query, setQuery] = useState<string>('');
   const [sortKey, setSortKey] = useState<SortKey>('recent');
@@ -84,11 +88,11 @@ const WorksitesPage: React.FC<Props> = ({ navigation }) => {
         {loaded && sites.length > 0 && (
           <View style={styles.searchBlock}>
             <View style={styles.searchBox}>
-              <MaterialCommunityIcons name="magnify" size={20} color="#9ca3af" />
+              <MaterialCommunityIcons name="magnify" size={20} color={colors.placeholder} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Rechercher un chantier ou une ville…"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={query}
                 onChangeText={setQuery}
                 autoCorrect={false}
@@ -96,7 +100,7 @@ const WorksitesPage: React.FC<Props> = ({ navigation }) => {
               />
               {query.length > 0 && (
                 <TouchableOpacity onPress={() => setQuery('')}>
-                  <MaterialCommunityIcons name="close-circle" size={18} color="#9ca3af" />
+                  <MaterialCommunityIcons name="close-circle" size={18} color={colors.placeholder} />
                 </TouchableOpacity>
               )}
             </View>
@@ -179,8 +183,8 @@ const WorksitesPage: React.FC<Props> = ({ navigation }) => {
 };
 
 // ... Styles identiques à la version JS
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   banner: { backgroundColor: '#c2410c', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24 },
   brandText: { fontSize: 10, fontWeight: 'bold', letterSpacing: 2, color: '#fed7aa', marginBottom: 4 },
   bannerTitle: { fontSize: 26, fontWeight: 'bold', color: '#ffffff' },
@@ -190,28 +194,28 @@ const styles = StyleSheet.create({
   createBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 14, marginLeft: 6 },
   loader: { marginTop: 40 },
   searchBlock: { marginBottom: 16 },
-  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', paddingHorizontal: 12 },
-  searchInput: { flex: 1, paddingVertical: 12, marginLeft: 8, fontSize: 14, color: '#111827' },
+  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12 },
+  searchInput: { flex: 1, paddingVertical: 12, marginLeft: 8, fontSize: 14, color: colors.text },
   sortRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
-  sortLabel: { fontSize: 13, color: '#6b7280', marginRight: 8 },
-  sortChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e5e7eb', marginRight: 6 },
+  sortLabel: { fontSize: 13, color: colors.muted, marginRight: 8 },
+  sortChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, marginRight: 6 },
   sortChipActive: { backgroundColor: '#c2410c', borderColor: '#c2410c' },
-  sortChipText: { fontSize: 12, fontWeight: '600', color: '#374151' },
+  sortChipText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
   sortChipTextActive: { color: '#ffffff' },
   progressRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
   progressTrack: { flex: 1, height: 6, borderRadius: 3, backgroundColor: '#e5e7eb', overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3, backgroundColor: '#c2410c' },
-  progressText: { marginLeft: 8, fontSize: 11, fontWeight: 'bold', color: '#374151' },
-  siteCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 16, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  progressText: { marginLeft: 8, fontSize: 11, fontWeight: 'bold', color: colors.textSecondary },
+  siteCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: 16, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   siteIcon: { width: 46, height: 46, borderRadius: 12, backgroundColor: '#fff7ed', justifyContent: 'center', alignItems: 'center' },
   siteInfo: { flex: 1, marginLeft: 12 },
-  siteName: { fontSize: 15, fontWeight: 'bold', color: '#111827' },
-  siteLocation: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  siteName: { fontSize: 15, fontWeight: 'bold', color: colors.text },
+  siteLocation: { fontSize: 12, color: colors.muted, marginTop: 2 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, marginRight: 6 },
   statusText: { fontSize: 11, fontWeight: 'bold' },
-  emptyCard: { backgroundColor: '#ffffff', borderRadius: 16, padding: 40, alignItems: 'center', borderWidth: 1, borderColor: '#f3f4f6', elevation: 1 },
-  emptyTitle: { fontSize: 18, fontWeight: 'bold', color: '#111827', marginTop: 16, marginBottom: 8 },
-  emptyText: { fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 20 },
+  emptyCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 40, alignItems: 'center', borderWidth: 1, borderColor: colors.border, elevation: 1 },
+  emptyTitle: { fontSize: 18, fontWeight: 'bold', color: colors.text, marginTop: 16, marginBottom: 8 },
+  emptyText: { fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 20 },
 });
 
 export default WorksitesPage;

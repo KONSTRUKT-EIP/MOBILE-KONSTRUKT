@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -13,6 +13,8 @@ import { MemberDetail, SiteDetail, SiteStats, TeamSummary } from '../../Types/Wo
 import { formatBudget, formatDate, siteStatus } from '../../Utils/siteStatus';
 import { roleLabel } from '../../Utils/roles';
 import { DashboardStackParamList } from '../../Navigation/TabNavigator';
+import { useTheme } from '../../Theme/ThemeContext';
+import { ThemeColors } from '../../Theme/colors';
 
 // 1. Définition des interfaces pour les données de l'API
 interface Category {
@@ -40,6 +42,8 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'JobsiteHub'>;
 const percentOf = (count: number, total: number): number => (total > 0 ? Math.round((count / total) * 100) : 0);
 
 const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { chantierName, siteId } = route.params;
   const { sites, selectedSite, selectSite, canCreateSite, canDeleteSite, loadSession } = useSession();
   const [switcherVisible, setSwitcherVisible] = useState<boolean>(false);
@@ -179,22 +183,22 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
               </View>
             </View>
             <View style={styles.infoRow}>
-              <MaterialCommunityIcons name="map-marker" size={18} color="#6b7280" />
+              <MaterialCommunityIcons name="map-marker" size={18} color={colors.muted} />
               <Text style={styles.infoText}>{info.address}, {info.postalCode} {info.city}</Text>
             </View>
             {detail && (
               <>
                 <View style={styles.infoRow}>
-                  <MaterialCommunityIcons name="calendar-range" size={18} color="#6b7280" />
+                  <MaterialCommunityIcons name="calendar-range" size={18} color={colors.muted} />
                   <Text style={styles.infoText}>{formatDate(detail.startDate)} → {formatDate(detail.endDate)}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <MaterialCommunityIcons name="cash" size={18} color="#6b7280" />
+                  <MaterialCommunityIcons name="cash" size={18} color={colors.muted} />
                   <Text style={styles.infoText}>Budget : {formatBudget(detail.budget)}</Text>
                 </View>
                 {detail.organization && (
                   <View style={styles.infoRow}>
-                    <MaterialCommunityIcons name="domain" size={18} color="#6b7280" />
+                    <MaterialCommunityIcons name="domain" size={18} color={colors.muted} />
                     <Text style={styles.infoText}>{detail.organization.name}</Text>
                   </View>
                 )}
@@ -202,7 +206,7 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
             )}
             {sessionSite?.membershipRole && (
               <View style={[styles.infoRow, styles.infoRowLast]}>
-                <MaterialCommunityIcons name="account-key" size={18} color="#6b7280" />
+                <MaterialCommunityIcons name="account-key" size={18} color={colors.muted} />
                 <Text style={styles.infoText}>Votre rôle : {roleLabel(sessionSite.membershipRole)}</Text>
               </View>
             )}
@@ -329,50 +333,50 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
 };
 
 // ... Styles identiques à ta version JS
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { padding: 20, paddingBottom: 110 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backButton: { marginRight: 10, marginLeft: -10 },
   switchButton: { marginLeft: 'auto', padding: 6 },
   createIcon: { padding: 6 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#111827' },
-  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#111827', marginBottom: 14 },
-  whiteCard: { backgroundColor: '#ffffff', borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  title: { fontSize: 24, fontWeight: 'bold', color: colors.text },
+  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: colors.text, marginBottom: 14 },
+  whiteCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   horizontalRow: { flexDirection: 'row', paddingVertical: 10 },
   statWrapper: { width: 100, marginRight: 10, alignItems: 'center' },
   statTextContainer: { marginTop: 8, alignItems: 'center' },
-  statLabelText: { fontSize: 12, fontWeight: 'bold', color: '#111827' },
-  statSubText: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
+  statLabelText: { fontSize: 12, fontWeight: 'bold', color: colors.text },
+  statSubText: { fontSize: 11, color: colors.placeholder, marginTop: 2 },
   actionGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  actionCard: { width: '48%', padding: 20, alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  actionCard: { width: '48%', padding: 20, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   iconCircle: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  actionLabel: { fontSize: 15, fontWeight: 'bold', color: '#111827' },
-  categoryCard: { flexDirection: 'row', alignItems: 'center', padding: 16, marginBottom: 10, backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#f3f4f6', elevation: 2 },
+  actionLabel: { fontSize: 15, fontWeight: 'bold', color: colors.text },
+  categoryCard: { flexDirection: 'row', alignItems: 'center', padding: 16, marginBottom: 10, backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   cardLeft: { flex: 1.2 },
   cardLabel: { fontSize: 16, fontWeight: 'bold' },
-  cardDesc: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  cardDesc: { fontSize: 12, color: colors.muted, marginTop: 2 },
   cardRight: { flex: 1, paddingHorizontal: 10 },
   infoHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   infoActions: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
   editButton: { marginLeft: 10, padding: 2 },
   statusBadge: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
   statusBadgeText: { fontSize: 12, fontWeight: 'bold' },
-  infoRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  infoRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
   infoRowLast: { borderBottomWidth: 0 },
-  infoText: { flex: 1, marginLeft: 10, fontSize: 14, color: '#111827' },
-  statNote: { fontSize: 11, color: '#9ca3af', marginTop: 4 },
-  listRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  infoText: { flex: 1, marginLeft: 10, fontSize: 14, color: colors.text },
+  statNote: { fontSize: 11, color: colors.placeholder, marginTop: 4 },
+  listRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.border },
   listRowLast: { borderBottomWidth: 0 },
   listInfo: { flex: 1 },
-  listName: { fontSize: 14, fontWeight: 'bold', color: '#111827' },
-  listSub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  listName: { fontSize: 14, fontWeight: 'bold', color: colors.text },
+  listSub: { fontSize: 12, color: colors.muted, marginTop: 2 },
   listCount: { fontSize: 12, fontWeight: '600', color: '#4f46e5' },
   linkText: { fontSize: 13, fontWeight: '600', color: '#c2410c' },
   avatar: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   avatarText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13 },
-  deleteButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20, paddingVertical: 14, borderRadius: 12, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#fecaca' },
+  deleteButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20, paddingVertical: 14, borderRadius: 12, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#fecaca' },
   deleteDisabled: { opacity: 0.6 },
   deleteText: { marginLeft: 8, color: '#ef4444', fontSize: 15, fontWeight: 'bold' },
   progressValue: { fontSize: 11, fontWeight: 'bold', color: '#6366f1', textAlign: 'right' },
