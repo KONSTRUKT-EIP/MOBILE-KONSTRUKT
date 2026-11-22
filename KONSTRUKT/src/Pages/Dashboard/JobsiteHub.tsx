@@ -237,8 +237,8 @@ const JobsiteHub: React.FC<Props> = ({ route, navigation }) => {
             style={styles.actionCard} 
             onPress={() => navigation.navigate('TeamList', { chantierName, siteId })}
           >
-            <View style={[styles.iconCircle, {backgroundColor: '#e0e7ff'}]}>
-              <MaterialCommunityIcons name="account-group" size={26} color="#4f46e5" />
+            <View style={[styles.iconCircle, {backgroundColor: '#ffedd5'}]}>
+              <MaterialCommunityIcons name="account-group" size={26} color="#c2410c" />
             </View>
             <Text style={styles.actionLabel}>Équipe</Text>
           </TouchableOpacity>
@@ -372,16 +372,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   listInfo: { flex: 1 },
   listName: { fontSize: 14, fontWeight: 'bold', color: colors.text },
   listSub: { fontSize: 12, color: colors.muted, marginTop: 2 },
-  listCount: { fontSize: 12, fontWeight: '600', color: '#4f46e5' },
+  listCount: { fontSize: 12, fontWeight: '600', color: '#c2410c' },
   linkText: { fontSize: 13, fontWeight: '600', color: '#c2410c' },
   avatar: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   avatarText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13 },
   deleteButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20, paddingVertical: 14, borderRadius: 12, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#fecaca' },
   deleteDisabled: { opacity: 0.6 },
   deleteText: { marginLeft: 8, color: '#ef4444', fontSize: 15, fontWeight: 'bold' },
-  progressValue: { fontSize: 11, fontWeight: 'bold', color: '#6366f1', textAlign: 'right' },
+  progressValue: { fontSize: 11, fontWeight: 'bold', color: '#c2410c', textAlign: 'right' },
   progressBarBg: { height: 6, marginTop: 5, borderRadius: 3, backgroundColor: '#E5E7EB' },
-  progressBarFill: { height: '100%', borderRadius: 3, backgroundColor: '#818CF8' },
+  progressBarFill: { height: '100%', borderRadius: 3, backgroundColor: '#c2410c' },
 });
 
 export default JobsiteHub;

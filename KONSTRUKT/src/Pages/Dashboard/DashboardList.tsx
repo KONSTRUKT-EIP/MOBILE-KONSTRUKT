@@ -85,7 +85,7 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
     >
       <View style={styles.cardHeader}>
         <View style={styles.iconBox}>
-          <MaterialCommunityIcons name="office-building" size={24} color="#4f46e5" />
+          <MaterialCommunityIcons name="office-building" size={24} color="#c2410c" />
         </View>
         <View style={styles.info}>
           <Text style={styles.name}>{item.name}</Text>
@@ -107,7 +107,7 @@ const DashboardList: React.FC<Props> = ({ navigation }) => {
       </View>
       {!loaded || hasSingleSite ? (
         <View style={styles.loader}>
-          <ActivityIndicator size="large" color="#4f46e5" />
+          <ActivityIndicator size="large" color="#c2410c" />
         </View>
       ) : error ? (
         <View style={styles.loader}>
@@ -135,8 +135,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
   errorText: { color: colors.muted, fontSize: 14, textAlign: 'center' },
-  banner: { backgroundColor: '#4f46e5', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 },
-  brandText: { fontSize: 10, fontWeight: 'bold', letterSpacing: 2, color: '#c7d2fe', marginBottom: 4 },
+  banner: { backgroundColor: '#c2410c', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 },
+  brandText: { fontSize: 10, fontWeight: 'bold', letterSpacing: 2, color: '#fed7aa', marginBottom: 4 },
   bannerTitle: { fontSize: 26, fontWeight: 'bold', color: '#ffffff' },
   list: { padding: 16, paddingBottom: 110 },
   headerContainer: { marginBottom: 8, paddingTop: 8 },
@@ -144,13 +144,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   subtitle: { fontSize: 14, color: colors.muted, marginTop: 4, marginBottom: 24 },
   sectionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text },
-  countBadge: { marginLeft: 8, backgroundColor: '#e0e7ff', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 },
+  countBadge: { marginLeft: 8, backgroundColor: '#ffedd5', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 },
   createButton: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', backgroundColor: '#c2410c', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999 },
   createButtonText: { color: '#ffffff', fontSize: 13, fontWeight: 'bold', marginLeft: 4 },
-  countBadgeText: { color: '#4f46e5', fontSize: 12, fontWeight: 'bold' },
+  countBadgeText: { color: '#c2410c', fontSize: 12, fontWeight: 'bold' },
   card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   cardHeader: { flexDirection: 'row', alignItems: 'center' },
-  iconBox: { width: 48, height: 48, borderRadius: 12, backgroundColor: '#e0e7ff', justifyContent: 'center', alignItems: 'center' },
+  iconBox: { width: 48, height: 48, borderRadius: 12, backgroundColor: '#ffedd5', justifyContent: 'center', alignItems: 'center' },
   info: { flex: 1, marginLeft: 14 },
   name: { fontSize: 16, fontWeight: 'bold', color: colors.text },
   locationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },

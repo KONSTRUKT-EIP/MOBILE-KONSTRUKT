@@ -131,7 +131,7 @@ const TradeDashboard: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.filterGrid}>
             {reportData?.filters.map(f => (
               <View key={f.id} style={styles.filterItem}>
-                <MaterialCommunityIcons name="check-circle" size={20} color="#818CF8" />
+                <MaterialCommunityIcons name="check-circle" size={20} color="#c2410c" />
                 <Text style={styles.filterLabel}>{f.label}</Text>
               </View>
             ))}
@@ -181,7 +181,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   whiteCard: { padding: 15, marginBottom: 15, backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, elevation: 2 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 15 },
   cardTitle: { fontSize: 16, fontWeight: 'bold' },
-  overallText: { fontSize: 12, fontWeight: 'bold', color: '#818CF8' },
+  overallText: { fontSize: 12, fontWeight: 'bold', color: '#c2410c' },
   budgetCard: { flexDirection: 'row', padding: 20, marginBottom: 15, backgroundColor: '#1E1E1E', borderRadius: 15 },
   budgetItem: { flex: 1, alignItems: 'center' },
   budgetLabel: { fontSize: 11, marginBottom: 5, color: '#AAA' },
