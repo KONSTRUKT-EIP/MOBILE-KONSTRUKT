@@ -6,6 +6,7 @@ import { decodeTokenPayload } from '../Utils/jwt';
 
 const SELECTED_SITE_KEY = 'selectedSiteId';
 const SITE_CREATOR_ROLES = ['ADMIN', 'CHEF_PROJET'];
+const TEAM_MANAGER_ROLES = ['ADMIN', 'CHEF_PROJET', 'CONDUCTEUR_TRAVAUX'];
 
 interface SessionContextValue {
   user: User | null;
@@ -14,6 +15,7 @@ interface SessionContextValue {
   organizationId: string | null;
   canCreateSite: boolean;
   canDeleteSite: boolean;
+  canManageTeams: boolean;
   loaded: boolean;
   error: string;
   loadSession: () => Promise<User | null>;
@@ -86,10 +88,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const canCreateSite = role !== null && SITE_CREATOR_ROLES.includes(role);
   const canDeleteSite = role === 'ADMIN';
+  const canManageTeams = role !== null && TEAM_MANAGER_ROLES.includes(role);
 
   const value = useMemo(
-    () => ({ user, sites, selectedSite, organizationId, canCreateSite, canDeleteSite, loaded, error, loadSession, selectSite, clearSession }),
-    [user, sites, selectedSite, organizationId, canCreateSite, canDeleteSite, loaded, error, loadSession, selectSite, clearSession]
+    () => ({ user, sites, selectedSite, organizationId, canCreateSite, canDeleteSite, canManageTeams, loaded, error, loadSession, selectSite, clearSession }),
+    [user, sites, selectedSite, organizationId, canCreateSite, canDeleteSite, canManageTeams, loaded, error, loadSession, selectSite, clearSession]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
